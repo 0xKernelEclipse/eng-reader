@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- Inline theme restore — runs before any paint to prevent flash -->
+    <script>
+      try {
+        var t = localStorage.getItem("reader-theme");
+        document.documentElement.className = t === "light" ? "theme-light" : "theme-dark";
+      } catch (_) {}
+    </script>
+
+    <!-- PWA / Safari home-screen meta -->
+    <meta name="theme-color" content="#090f1d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="قارئ الإنجليزية" />
+
+    <!-- Icons: SVG for modern browsers, PNG for iOS Add to Home Screen -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg" />
+
+    <title>اختبار قارئ الإنجليزية</title>
+  </head>
+  <body>
+    <main class="app-shell">
+
+      <!-- ── Top bar ────────────────────────────────────────── -->
+      <header class="hero">
+        <div class="topbar">
+          <div class="brand" aria-label="قارئ الإنجليزية">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v17.5a2.5 2.5 0 0 0-2.5-2.5H5z"/>
+                <path d="M5 4.5v15A2.5 2.5 0 0 1 7.5 17H19"/>
+              </svg>
+            </span>
+            <span data-i18n="app_name">قارئ الإنجليزية</span>
+          </div>
+
+          <div class="preferences" aria-label="الإعدادات السريعة">
+            <button id="language-toggle" class="icon-btn" type="button" aria-label="Switch to English">
+              <span class="lang-label">EN</span>
+            </button>
+            <button id="theme-toggle" class="icon-btn" type="button" aria-label="تفعيل المظهر الفاتح">
+              <!-- Moon = dark mode active -->
+              <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.3 15.7A8.8 8.8 0 0 1 8.3 3.7 8.9 8.9 0 1 0 20.3 15.7Z"/>
+              </svg>
+              <!-- Sun = light mode active -->
+              <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="compatibility_label">اختبار التوافق</p>
+          <h1 data-i18n="headline">اختبار بسيط قبل البدء</h1>
+          <p class="subtitle" data-i18n="intro">
+            نتأكد من الكاميرا وقراءة الصورة والصوت والعمل دون إنترنت.
+          </p>
+        </div>
+      </header>
+
+      <!-- ── Step 1: Photo ──────────────────────────────────── -->
+      <section class="card" aria-labelledby="photo-heading">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">01</span>
+          <div class="step-heading-text">
+            <h2 id="photo-heading" data-i18n="photo_title">اختاري صورة الصفحة</h2>
+            <p data-i18n="photo_copy">صوّري صفحة إنجليزية أو اختاري صورة محفوظة.</p>
+          </div>
+        </div>
+
+        <div class="actions actions-2" role="group" aria-label="خيارات الصورة">
+          <!-- Camera button — capture=environment → opens rear camera directly on iOS -->
+          <label class="btn btn-primary" for="camera-input">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/>
+              <circle cx="12" cy="13" r="3.5"/>
+            </svg>
+            <span data-i18n="take_photo">صوّري الصفحة</span>
+          </label>
+          <input id="camera-input" type="file" accept="image/*" capture="environment" />
+
+          <!-- Gallery / file button -->
+          <label class="btn" for="photo-input">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2"/>
+              <circle cx="8.5" cy="9" r="1.4"/>
+              <path d="m4 18 5.2-5.2 3.2 3.2 2.5-2.5L20 18"/>
+            </svg>
+            <span data-i18n="choose_photo">اختاري صورة</span>
+          </label>
+          <input id="photo-input" type="file" accept="image/*" />
+        </div>
+
+        <p id="image-status" class="status" aria-live="polite" data-i18n="image_idle">
+          لم يتم اختيار صورة بعد.
+        </p>
+        <img id="preview" class="preview" alt="معاينة الصورة المختارة" hidden />
+      </section>
+
+      <!-- ── Step 2: OCR ───────────────────────────────────── -->
+      <section class="card" aria-labelledby="ocr-heading">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">02</span>
+          <div class="step-heading-text">
+            <h2 id="ocr-heading" data-i18n="ocr_title">اقرئي النص من الصورة</h2>
+            <p data-i18n="ocr_copy">يعمل محرك القراءة على الهاتف، ولا تُرسل الصورة إلى أي مكان.</p>
+          </div>
+        </div>
+
+        <button id="ocr-button" class="btn btn-primary btn-full" type="button" disabled>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h5M4 4v5M20 4h-5M20 4v5M4 20h5M4 20v-5M20 20h-5M20 20v-5"/>
+            <path d="M8 10h8M8 14h5"/>
+          </svg>
+          <span data-i18n="start_ocr">ابدئي قراءة الصورة</span>
+        </button>
+
+        <!-- Progress bar — hidden until OCR starts -->
+        <div id="ocr-progress" class="ocr-progress-wrap" hidden aria-hidden="true">
+          <div id="progress-bar" class="ocr-progress-bar"></div>
+        </div>
+
+        <p id="ocr-status" class="status" aria-live="polite" data-i18n="ocr_idle">
+          اختاري صورة أولاً.
+        </p>
+
+        <label class="result-label" for="ocr-result" data-i18n="ocr_result_label">
+          النص الذي قرأه التطبيق
+        </label>
+        <textarea
+          id="ocr-result"
+          readonly
+          rows="6"
+          data-i18n-placeholder="ocr_placeholder"
+          placeholder="سيظهر النص هنا بعد الاختبار."
+        ></textarea>
+      </section>
+
+      <!-- ── Step 3: Speech ────────────────────────────────── -->
+      <section class="card" aria-labelledby="speech-heading">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">03</span>
+          <div class="step-heading-text">
+            <h2 id="speech-heading" data-i18n="speech_title">اختبري الأصوات</h2>
+            <p data-i18n="speech_copy">اضغطي الزر لسماع كل لغة من أصوات الهاتف المتاحة.</p>
+          </div>
+        </div>
+
+        <div class="actions actions-3" role="group" aria-label="أزرار الصوت">
+          <button id="english-speech" class="btn" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
+              <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+            </svg>
+            <span data-i18n="test_english">اختبار الإنجليزية</span>
+          </button>
+
+          <button id="arabic-speech" class="btn" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
+              <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+            </svg>
+            <span data-i18n="test_arabic">اختبار العربية</span>
+          </button>
+
+          <button id="stop-speech" class="btn btn-quiet" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+            </svg>
+            <span data-i18n="stop_audio">إيقاف الصوت</span>
+          </button>
+        </div>
+
+        <dl class="diag-list diag-list-compact">
+          <div>
+            <dt data-i18n="english_voice">صوت الإنجليزية</dt>
+            <dd id="english-voice">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="arabic_voice">صوت العربية</dt>
+            <dd id="arabic-voice">جارٍ الفحص…</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- ── Step 4: Offline diagnostics ──────────────────── -->
+      <section class="card" aria-labelledby="offline-heading">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">04</span>
+          <div class="step-heading-text">
+            <h2 id="offline-heading" data-i18n="offline_title">العمل دون إنترنت</h2>
+            <p data-i18n="offline_copy">تظهر علامة الجاهزية فقط بعد حفظ ملفات القراءة محليًا.</p>
+          </div>
+        </div>
+
+        <p id="offline-status" class="status status-prominent" aria-live="polite" data-i18n="offline_idle">
+          جارٍ فحص الملفات المحلية…
+        </p>
+
+        <dl class="diag-list">
+          <div>
+            <dt data-i18n="service_worker">Service Worker</dt>
+            <dd id="sw-status">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="browser">المتصفح</dt>
+            <dd id="browser-status">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="indexeddb">IndexedDB</dt>
+            <dd id="indexeddb-status">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="ocr_version">إصدار OCR</dt>
+            <dd>tesseract.js 5.1.1</dd>
+          </div>
+          <div>
+            <dt data-i18n="ocr_worker">ملف OCR worker</dt>
+            <dd id="worker-cache">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="ocr_core">نواة OCR</dt>
+            <dd id="core-cache">جارٍ الفحص…</dd>
+          </div>
+          <div>
+            <dt data-i18n="ocr_language">نموذج الإنجليزية</dt>
+            <dd id="language-cache">جارٍ الفحص…</dd>
+          </div>
+        </dl>
+
+        <button id="refresh-diagnostics" class="text-btn" type="button">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 11a8 8 0 1 0 2 5.2"/>
+            <path d="M20 4v7h-7"/>
+          </svg>
+          <span data-i18n="refresh">تحديث الفحص</span>
+        </button>
+      </section>
+
+      <!-- ── How-to guide ──────────────────────────────────── -->
+      <section class="card" aria-labelledby="guide-heading">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="margin:0;stroke-width:2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+          </span>
+          <div class="step-heading-text">
+            <h2 id="guide-heading" data-i18n="how_to_title">طريقة الاختبار على الهاتف</h2>
+          </div>
+        </div>
+        <ol class="guide-list">
+          <li>
+            <span class="guide-num" aria-hidden="true">1</span>
+            <span data-i18n="how_to_1">افتحي الصفحة مع الإنترنت، وانتظري حتى تظهر حالة الملفات مكتملة.</span>
+          </li>
+          <li>
+            <span class="guide-num" aria-hidden="true">2</span>
+            <span data-i18n="how_to_2">من زر المشاركة في Safari اختاري «إضافة إلى الشاشة الرئيسية».</span>
+          </li>
+          <li>
+            <span class="guide-num" aria-hidden="true">3</span>
+            <span data-i18n="how_to_3">أغلقي Safari، أوقفي Wi-Fi والبيانات، وافتحي التطبيق من الأيقونة.</span>
+          </li>
+        </ol>
+      </section>
+
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

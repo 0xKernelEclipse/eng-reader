@@ -1,0 +1,21 @@
+{
+  "name": "english-reader-compat-test",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen-icons":   "node scripts/gen-icons.mjs",
+    "prepare-ocr": "node scripts/prepare-ocr.mjs",
+    "dev":         "npm run gen-icons && npm run prepare-ocr && vite --host 0.0.0.0",
+    "typecheck":   "tsc --noEmit",
+    "build":       "npm run gen-icons && npm run prepare-ocr && tsc --noEmit && vite build && node scripts/build-service-worker.mjs",
+    "preview":     "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "tesseract.js": "5.1.1"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3",
+    "vite": "5.4.14"
+  }
+}

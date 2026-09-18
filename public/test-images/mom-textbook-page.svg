@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2400" viewBox="0 0 1800 2400">
+  <rect width="1800" height="2400" fill="#d6d1c8"/>
+  <rect x="110" y="90" width="1580" height="2220" rx="12" fill="#fffef9" stroke="#d0c8ba" stroke-width="8"/>
+  <text x="220" y="285" fill="#173b63" font-family="Georgia, serif" font-size="88" font-weight="bold">Our Environment</text>
+  <line x1="220" y1="335" x2="1550" y2="335" stroke="#8eb1c2" stroke-width="6"/>
+  <text x="220" y="490" fill="#20252d" font-family="Arial, sans-serif" font-size="59">The environment is beautiful and important.</text>
+  <text x="220" y="590" fill="#20252d" font-family="Arial, sans-serif" font-size="59">We must protect it from dangerous pollution.</text>
+  <text x="220" y="690" fill="#20252d" font-family="Arial, sans-serif" font-size="59">Every student can help keep the air clean.</text>
+  <text x="220" y="790" fill="#20252d" font-family="Arial, sans-serif" font-size="59">Plants and trees give us fresh air every day.</text>
+  <rect x="215" y="960" width="1365" height="580" rx="18" fill="#eef6f3" stroke="#80ac9d" stroke-width="5"/>
+  <text x="270" y="1080" fill="#215946" font-family="Arial, sans-serif" font-size="56" font-weight="bold">New Words</text>
+  <text x="280" y="1205" fill="#20252d" font-family="Arial, sans-serif" font-size="54">environment</text>
+  <text x="820" y="1205" fill="#20252d" font-family="Arial, sans-serif" font-size="54">beautiful</text>
+  <text x="280" y="1325" fill="#20252d" font-family="Arial, sans-serif" font-size="54">protect</text>
+  <text x="820" y="1325" fill="#20252d" font-family="Arial, sans-serif" font-size="54">dangerous</text>
+  <text x="280" y="1445" fill="#20252d" font-family="Arial, sans-serif" font-size="54">pollution</text>
+  <text x="220" y="1760" fill="#20252d" font-family="Arial, sans-serif" font-size="59">Read the paragraph again. Circle the words you know.</text>
+  <text x="220" y="1860" fill="#20252d" font-family="Arial, sans-serif" font-size="59">Then write one sentence about your school.</text>
+  <text x="1510" y="2180" fill="#657080" font-family="Arial, sans-serif" font-size="42">12</text>
+</svg>
