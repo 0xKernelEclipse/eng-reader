@@ -1,13 +1,22 @@
-import type { Locale, Theme } from "./types.js";
+import type {
+  Locale,
+  Theme,
+  VocabularyItem,
+  VocabularyMode,
+  UserPreferences,
+} from "./types.js";
 
 const LOCALE_KEY = "reader-language";
 const THEME_KEY = "reader-theme";
+const SPEED_KEY = "reader-speed";
+const REPETITIONS_KEY = "reader-repetitions";
+const VOCAB_MODE_KEY = "reader-vocab-mode";
+const CACHED_WORDS_KEY = "reader-cached-words";
 
 function safeGet(key: string): string | null {
   try {
     return localStorage.getItem(key);
   } catch {
-    // Private-browsing mode can throw
     return null;
   }
 }
@@ -16,13 +25,13 @@ function safeSet(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {
-    // Silently ignore — settings are best-effort
+    // Silently ignore private browsing or quota limitations
   }
 }
 
 export function readLocale(): Locale {
   const stored = safeGet(LOCALE_KEY);
-  return stored === "en" ? "en" : "ar"; // default = Arabic
+  return stored === "en" ? "en" : "ar";
 }
 
 export function saveLocale(locale: Locale): void {
@@ -31,9 +40,69 @@ export function saveLocale(locale: Locale): void {
 
 export function readTheme(): Theme {
   const stored = safeGet(THEME_KEY);
-  return stored === "light" ? "light" : "dark"; // default = dark
+  return stored === "light" ? "light" : "dark";
 }
 
 export function saveTheme(theme: Theme): void {
   safeSet(THEME_KEY, theme);
+}
+
+export function readSpeed(): number {
+  const stored = safeGet(SPEED_KEY);
+  const parsed = stored ? parseFloat(stored) : NaN;
+  const allowed = [0.6, 0.75, 0.9, 1.0, 1.15];
+  return allowed.includes(parsed) ? parsed : 0.75;
+}
+
+export function saveSpeed(speed: number): void {
+  safeSet(SPEED_KEY, String(speed));
+}
+
+export function readRepetitions(): number {
+  const stored = safeGet(REPETITIONS_KEY);
+  const parsed = stored ? parseInt(stored, 10) : NaN;
+  const allowed = [3, 4, 5];
+  return allowed.includes(parsed) ? parsed : 3;
+}
+
+export function saveRepetitions(repetitions: number): void {
+  safeSet(REPETITIONS_KEY, String(repetitions));
+}
+
+export function readVocabMode(): VocabularyMode {
+  const stored = safeGet(VOCAB_MODE_KEY);
+  return stored === "all_words" ? "all_words" : "learning_words";
+}
+
+export function saveVocabMode(mode: VocabularyMode): void {
+  safeSet(VOCAB_MODE_KEY, mode);
+}
+
+export function readUserPreferences(): UserPreferences {
+  return {
+    locale: readLocale(),
+    theme: readTheme(),
+    speed: readSpeed(),
+    repetitions: readRepetitions(),
+    vocabMode: readVocabMode(),
+  };
+}
+
+export function saveCachedWords(words: VocabularyItem[]): void {
+  try {
+    safeSet(CACHED_WORDS_KEY, JSON.stringify(words));
+  } catch {
+    // Best effort
+  }
+}
+
+export function readCachedWords(): VocabularyItem[] {
+  try {
+    const raw = safeGet(CACHED_WORDS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }

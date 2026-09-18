@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-    <!-- Inline theme restore — runs before any paint to prevent flash -->
+    <!-- Inline theme restore before first paint -->
     <script>
       try {
         var t = localStorage.getItem("reader-theme");
@@ -12,18 +12,18 @@
       } catch (_) {}
     </script>
 
-    <!-- PWA / Safari home-screen meta -->
+    <!-- iOS / PWA Home Screen Meta -->
     <meta name="theme-color" content="#090f1d" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="قارئ الإنجليزية" />
 
-    <!-- Icons: SVG for modern browsers, PNG for iOS Add to Home Screen -->
+    <!-- Icons: PNG for iOS Home Screen, SVG for desktop/Android -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg" />
 
-    <title>اختبار قارئ الإنجليزية</title>
+    <title>قارئ الكلمات الإنجليزية</title>
   </head>
   <body>
     <main class="app-shell">
@@ -38,48 +38,57 @@
                 <path d="M5 4.5v15A2.5 2.5 0 0 1 7.5 17H19"/>
               </svg>
             </span>
-            <span data-i18n="app_name">قارئ الإنجليزية</span>
+            <span class="brand-text" data-i18n="app_name">قارئ الإنجليزية</span>
           </div>
 
           <div class="preferences" aria-label="الإعدادات السريعة">
+            <!-- Language Toggle -->
             <button id="language-toggle" class="icon-btn" type="button" aria-label="Switch to English">
               <span class="lang-label">EN</span>
             </button>
+
+            <!-- Theme Toggle -->
             <button id="theme-toggle" class="icon-btn" type="button" aria-label="تفعيل المظهر الفاتح">
-              <!-- Moon = dark mode active -->
               <svg class="theme-icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M20.3 15.7A8.8 8.8 0 0 1 8.3 3.7 8.9 8.9 0 1 0 20.3 15.7Z"/>
               </svg>
-              <!-- Sun = light mode active -->
               <svg class="theme-icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="4"/>
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+              </svg>
+            </button>
+
+            <!-- Settings & Diagnostics Drawer Toggle -->
+            <button id="settings-toggle-btn" class="icon-btn" type="button" aria-label="الإعدادات والفحص">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
             </button>
           </div>
         </div>
 
         <div class="hero-copy">
-          <p class="eyebrow" data-i18n="compatibility_label">اختبار التوافق</p>
-          <h1 data-i18n="headline">اختبار بسيط قبل البدء</h1>
+          <p class="eyebrow" data-i18n="compatibility_label">قارئ المفردات التعليمي</p>
+          <h1 data-i18n="headline">صوّري الصفحة واسمعي الكلمات</h1>
           <p class="subtitle" data-i18n="intro">
-            نتأكد من الكاميرا وقراءة الصورة والصوت والعمل دون إنترنت.
+            صوّري أي صفحة إنجليزية، وسيقوم التطبيق بقراءة الكلمات وتكرارها 3 مرات بالإنجليزية ثم معناها بالعربية.
           </p>
         </div>
       </header>
 
-      <!-- ── Step 1: Photo ──────────────────────────────────── -->
+      <!-- ── Step 1: Capture Photo ──────────────────────────── -->
       <section class="card" aria-labelledby="photo-heading">
         <div class="step-heading">
           <span class="step-num" aria-hidden="true">01</span>
           <div class="step-heading-text">
-            <h2 id="photo-heading" data-i18n="photo_title">اختاري صورة الصفحة</h2>
-            <p data-i18n="photo_copy">صوّري صفحة إنجليزية أو اختاري صورة محفوظة.</p>
+            <h2 id="photo-heading" data-i18n="step1_title">1. اختاري صورة الصفحة</h2>
+            <p data-i18n="step1_copy">صوّري صفحة من كتاب مدرسي أو اختاري صورة محفوظة.</p>
           </div>
         </div>
 
-        <div class="actions actions-2" role="group" aria-label="خيارات الصورة">
-          <!-- Camera button — capture=environment → opens rear camera directly on iOS -->
+        <div class="actions actions-3" role="group" aria-label="خيارات اختيار الصورة">
+          <!-- Primary Camera Capture (capture=environment launches rear camera on iOS/Android) -->
           <label class="btn btn-primary" for="camera-input">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/>
@@ -89,7 +98,7 @@
           </label>
           <input id="camera-input" type="file" accept="image/*" capture="environment" />
 
-          <!-- Gallery / file button -->
+          <!-- Gallery Photo Picker -->
           <label class="btn" for="photo-input">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="3" y="4" width="18" height="16" rx="2"/>
@@ -99,6 +108,18 @@
             <span data-i18n="choose_photo">اختاري صورة</span>
           </label>
           <input id="photo-input" type="file" accept="image/*" />
+
+          <!-- One-Tap Sample Textbook Page for Testing -->
+          <button id="sample-button" class="btn btn-accent-soft" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <span data-i18n="try_sample">صفحة تدريبية</span>
+          </button>
         </div>
 
         <p id="image-status" class="status" aria-live="polite" data-i18n="image_idle">
@@ -107,25 +128,25 @@
         <img id="preview" class="preview" alt="معاينة الصورة المختارة" hidden />
       </section>
 
-      <!-- ── Step 2: OCR ───────────────────────────────────── -->
+      <!-- ── Step 2: OCR & Vocabulary Extraction ────────────── -->
       <section class="card" aria-labelledby="ocr-heading">
         <div class="step-heading">
           <span class="step-num" aria-hidden="true">02</span>
           <div class="step-heading-text">
-            <h2 id="ocr-heading" data-i18n="ocr_title">اقرئي النص من الصورة</h2>
-            <p data-i18n="ocr_copy">يعمل محرك القراءة على الهاتف، ولا تُرسل الصورة إلى أي مكان.</p>
+            <h2 id="ocr-heading" data-i18n="step2_title">2. استخراج الكلمات</h2>
+            <p data-i18n="step2_copy">قراءة النص محليًا داخل الهاتف دون اتصال بالإنترنت.</p>
           </div>
         </div>
 
-        <button id="ocr-button" class="btn btn-primary btn-full" type="button" disabled>
+        <button id="ocr-button" class="btn btn-primary btn-full btn-large" type="button" disabled>
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 4h5M4 4v5M20 4h-5M20 4v5M4 20h5M4 20v-5M20 20h-5M20 20v-5"/>
             <path d="M8 10h8M8 14h5"/>
           </svg>
-          <span data-i18n="start_ocr">ابدئي قراءة الصورة</span>
+          <span data-i18n="start_ocr">ابدئي قراءة واستخراج الكلمات</span>
         </button>
 
-        <!-- Progress bar — hidden until OCR starts -->
+        <!-- Progress bar (hidden until OCR runs) -->
         <div id="ocr-progress" class="ocr-progress-wrap" hidden aria-hidden="true">
           <div id="progress-bar" class="ocr-progress-bar"></div>
         </div>
@@ -133,121 +154,255 @@
         <p id="ocr-status" class="status" aria-live="polite" data-i18n="ocr_idle">
           اختاري صورة أولاً.
         </p>
-
-        <label class="result-label" for="ocr-result" data-i18n="ocr_result_label">
-          النص الذي قرأه التطبيق
-        </label>
-        <textarea
-          id="ocr-result"
-          readonly
-          rows="6"
-          data-i18n-placeholder="ocr_placeholder"
-          placeholder="سيظهر النص هنا بعد الاختبار."
-        ></textarea>
       </section>
 
-      <!-- ── Step 3: Speech ────────────────────────────────── -->
-      <section class="card" aria-labelledby="speech-heading">
+      <!-- ── Step 3: Vocabulary Learning Player ─────────────── -->
+      <section id="player-card" class="card player-card" aria-labelledby="player-heading">
         <div class="step-heading">
           <span class="step-num" aria-hidden="true">03</span>
           <div class="step-heading-text">
-            <h2 id="speech-heading" data-i18n="speech_title">اختبري الأصوات</h2>
-            <p data-i18n="speech_copy">اضغطي الزر لسماع كل لغة من أصوات الهاتف المتاحة.</p>
+            <h2 id="player-heading" data-i18n="step3_title">3. الاستماع والتكرار</h2>
+            <p data-i18n="step3_copy">ينطق الكلمة الإنجليزية 3 مرات ثم المعنى بالعربية تلقائيًا.</p>
           </div>
         </div>
 
-        <div class="actions actions-3" role="group" aria-label="أزرار الصوت">
-          <button id="english-speech" class="btn" type="button">
+        <!-- Big Word Display Box -->
+        <div class="word-stage">
+          <div class="word-meta">
+            <span id="player-counter" class="word-counter"></span>
+          </div>
+
+          <div id="player-current-word" class="word-main-text">—</div>
+          <div id="player-arabic-meaning" class="word-meaning-text" data-i18n="player_idle">
+            اضغطي «ابدأ القراءة» لبدء نطق الكلمات.
+          </div>
+
+          <!-- Step Indicators: [EN 1] [EN 2] [EN 3] [عربي] -->
+          <div id="player-steps" class="step-pills-row" aria-label="مراحل تكرار الكلمة الحالية"></div>
+        </div>
+
+        <!-- Touch Controls Grid -->
+        <div class="player-controls">
+          <button id="player-prev" class="btn btn-ctrl" type="button" aria-label="الكلمة السابقة">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
-              <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+              <polygon points="19 20 9 12 19 4 19 20"/>
+              <line x1="5" y1="19" x2="5" y2="5"/>
             </svg>
-            <span data-i18n="test_english">اختبار الإنجليزية</span>
+            <span data-i18n="prev_word">السابقة</span>
           </button>
 
-          <button id="arabic-speech" class="btn" type="button">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
-              <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+          <!-- Master Play / Pause Button -->
+          <button id="player-play-pause" class="btn btn-primary btn-play-main" type="button" disabled data-action="play">
+            <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
-            <span data-i18n="test_arabic">اختبار العربية</span>
+            <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="6" y="4" width="4" height="16"/>
+              <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            <span id="player-play-pause-text" data-i18n="play">ابدأ القراءة</span>
           </button>
 
-          <button id="stop-speech" class="btn btn-quiet" type="button">
+          <button id="player-next" class="btn btn-ctrl" type="button" aria-label="الكلمة التالية">
+            <span data-i18n="next_word">التالية</span>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+              <polygon points="5 4 15 12 5 20 5 4"/>
+              <line x1="19" y1="5" x2="19" y2="19"/>
             </svg>
-            <span data-i18n="stop_audio">إيقاف الصوت</span>
           </button>
         </div>
 
-        <dl class="diag-list diag-list-compact">
-          <div>
-            <dt data-i18n="english_voice">صوت الإنجليزية</dt>
-            <dd id="english-voice">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="arabic_voice">صوت العربية</dt>
-            <dd id="arabic-voice">جارٍ الفحص…</dd>
-          </div>
-        </dl>
+        <!-- Secondary Controls -->
+        <div class="player-secondary-controls">
+          <button id="player-replay" class="btn btn-secondary-ctrl" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M3 21v-5h5"/>
+            </svg>
+            <span data-i18n="replay_word">إعادة الكلمة</span>
+          </button>
+
+          <button id="player-stop" class="btn btn-secondary-ctrl btn-quiet" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+            <span data-i18n="stop">إيقاف</span>
+          </button>
+        </div>
       </section>
 
-      <!-- ── Step 4: Offline diagnostics ──────────────────── -->
-      <section class="card" aria-labelledby="offline-heading">
-        <div class="step-heading">
-          <span class="step-num" aria-hidden="true">04</span>
-          <div class="step-heading-text">
-            <h2 id="offline-heading" data-i18n="offline_title">العمل دون إنترنت</h2>
-            <p data-i18n="offline_copy">تظهر علامة الجاهزية فقط بعد حفظ ملفات القراءة محليًا.</p>
+      <!-- ── Step 4: Word List ──────────────────────────────── -->
+      <section class="card" aria-labelledby="wordlist-heading">
+        <div class="card-header-with-badge">
+          <div class="step-heading">
+            <span class="step-num" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width:2">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </span>
+            <div class="step-heading-text">
+              <h2 id="wordlist-heading" data-i18n="words_list_title">قائمة الكلمات المستخرجة</h2>
+              <p data-i18n="tap_to_listen">اضغطي على أي كلمة للاستماع إليها مباشرة</p>
+            </div>
           </div>
+          <span id="words-count-badge" class="badge-count">0</span>
         </div>
 
-        <p id="offline-status" class="status status-prominent" aria-live="polite" data-i18n="offline_idle">
-          جارٍ فحص الملفات المحلية…
-        </p>
-
-        <dl class="diag-list">
-          <div>
-            <dt data-i18n="service_worker">Service Worker</dt>
-            <dd id="sw-status">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="browser">المتصفح</dt>
-            <dd id="browser-status">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="indexeddb">IndexedDB</dt>
-            <dd id="indexeddb-status">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="ocr_version">إصدار OCR</dt>
-            <dd>tesseract.js 5.1.1</dd>
-          </div>
-          <div>
-            <dt data-i18n="ocr_worker">ملف OCR worker</dt>
-            <dd id="worker-cache">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="ocr_core">نواة OCR</dt>
-            <dd id="core-cache">جارٍ الفحص…</dd>
-          </div>
-          <div>
-            <dt data-i18n="ocr_language">نموذج الإنجليزية</dt>
-            <dd id="language-cache">جارٍ الفحص…</dd>
-          </div>
-        </dl>
-
-        <button id="refresh-diagnostics" class="text-btn" type="button">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 11a8 8 0 1 0 2 5.2"/>
-            <path d="M20 4v7h-7"/>
-          </svg>
-          <span data-i18n="refresh">تحديث الفحص</span>
-        </button>
+        <div id="words-list-container" class="words-scroll-list">
+          <p class="empty-list-notice">لا توجد كلمات بعد. صوّري صفحة للبدء.</p>
+        </div>
       </section>
 
-      <!-- ── How-to guide ──────────────────────────────────── -->
+      <!-- ── Collapsible Settings & Diagnostics Drawer ─────── -->
+      <details id="settings-details" class="card settings-drawer">
+        <summary class="settings-summary">
+          <div class="settings-summary-title">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span data-i18n="settings_toggle">الإعدادات والفحص</span>
+          </div>
+          <span class="drawer-arrow" aria-hidden="true">▼</span>
+        </summary>
+
+        <div class="settings-content">
+          <!-- Voice Speed -->
+          <div class="setting-group">
+            <label class="setting-label" data-i18n="speed_label">سرعة الصوت:</label>
+            <div id="speed-selector" class="pill-group" role="radiogroup">
+              <button type="button" class="pill-btn" data-value="0.6">0.6x</button>
+              <button type="button" class="pill-btn active" data-value="0.75">0.75x</button>
+              <button type="button" class="pill-btn" data-value="0.9">0.9x</button>
+              <button type="button" class="pill-btn" data-value="1.0">1.0x</button>
+              <button type="button" class="pill-btn" data-value="1.15">1.15x</button>
+            </div>
+          </div>
+
+          <!-- Repetitions Count -->
+          <div class="setting-group">
+            <label class="setting-label" data-i18n="repetitions_label">عدد مرات تكرار الكلمة:</label>
+            <div id="reps-selector" class="pill-group" role="radiogroup">
+              <button type="button" class="pill-btn active" data-value="3">3 مرات</button>
+              <button type="button" class="pill-btn" data-value="4">4 مرات</button>
+              <button type="button" class="pill-btn" data-value="5">5 مرات</button>
+            </div>
+          </div>
+
+          <!-- Vocabulary Mode -->
+          <div class="setting-group">
+            <label class="setting-label" data-i18n="vocab_mode_label">نوع استخراج الكلمات:</label>
+            <div id="mode-selector" class="pill-group" role="radiogroup">
+              <button type="button" class="pill-btn active" data-value="learning_words" data-i18n="mode_learning">
+                كلمات الدروس المهمة (موصى به)
+              </button>
+              <button type="button" class="pill-btn" data-value="all_words" data-i18n="mode_all">
+                جميع الكلمات المستخرجة
+              </button>
+            </div>
+          </div>
+
+          <hr class="setting-divider" />
+
+          <!-- Diagnostics -->
+          <h3 class="diagnostics-heading" data-i18n="diagnostics_title">فحص الجهاز والتوافق مع الهاتف</h3>
+
+          <div class="actions actions-3">
+            <button id="english-speech" class="btn btn-secondary-ctrl" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
+                <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+              </svg>
+              <span data-i18n="test_english">اختبار الإنجليزية</span>
+            </button>
+
+            <button id="arabic-speech" class="btn btn-secondary-ctrl" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 10v4h4l5 4V6l-5 4H4Z"/>
+                <path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+              </svg>
+              <span data-i18n="test_arabic">اختبار العربية</span>
+            </button>
+
+            <button id="stop-speech" class="btn btn-quiet" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+              </svg>
+              <span data-i18n="stop_audio">إيقاف الصوت</span>
+            </button>
+          </div>
+
+          <dl class="diag-list diag-list-compact">
+            <div>
+              <dt data-i18n="english_voice">صوت الإنجليزية</dt>
+              <dd id="english-voice">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="arabic_voice">صوت العربية</dt>
+              <dd id="arabic-voice">جارٍ الفحص…</dd>
+            </div>
+          </dl>
+
+          <!-- Offline Storage Diagnostics -->
+          <p id="offline-status" class="status status-prominent" aria-live="polite" data-i18n="offline_idle">
+            جارٍ فحص الملفات المحلية…
+          </p>
+
+          <dl class="diag-list">
+            <div>
+              <dt data-i18n="service_worker">Service Worker</dt>
+              <dd id="sw-status">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="browser">المتصفح</dt>
+              <dd id="browser-status">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="indexeddb">IndexedDB</dt>
+              <dd id="indexeddb-status">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="ocr_version">إصدار محرك القراءة</dt>
+              <dd>tesseract.js 5.1.1</dd>
+            </div>
+            <div>
+              <dt data-i18n="ocr_worker">ملف Web Worker</dt>
+              <dd id="worker-cache">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="ocr_core">نواة WebAssembly</dt>
+              <dd id="core-cache">جارٍ الفحص…</dd>
+            </div>
+            <div>
+              <dt data-i18n="ocr_language">نموذج اللغة الإنجليزية</dt>
+              <dd id="language-cache">جارٍ الفحص…</dd>
+            </div>
+          </dl>
+
+          <button id="refresh-diagnostics" class="text-btn" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 0 2 5.2"/>
+              <path d="M20 4v7h-7"/>
+            </svg>
+            <span data-i18n="refresh">تحديث الفحص</span>
+          </button>
+
+          <!-- Collapsible Raw OCR Result for Debugging -->
+          <details class="raw-ocr-details">
+            <summary class="raw-ocr-summary" data-i18n="raw_ocr_label">النص الخام الذي قرأه المحرك</summary>
+            <textarea id="ocr-result" readonly rows="5" data-i18n-placeholder="ocr_placeholder" placeholder="سيظهر النص هنا بعد الفحص."></textarea>
+          </details>
+        </div>
+      </details>
+
+      <!-- ── How-to Guide ───────────────────────────────────── -->
       <section class="card" aria-labelledby="guide-heading">
         <div class="step-heading">
           <span class="step-num" aria-hidden="true">
@@ -257,21 +412,21 @@
             </svg>
           </span>
           <div class="step-heading-text">
-            <h2 id="guide-heading" data-i18n="how_to_title">طريقة الاختبار على الهاتف</h2>
+            <h2 id="guide-heading" data-i18n="how_to_title">طريقة الاستخدام والتثبيت على iPhone</h2>
           </div>
         </div>
         <ol class="guide-list">
           <li>
             <span class="guide-num" aria-hidden="true">1</span>
-            <span data-i18n="how_to_1">افتحي الصفحة مع الإنترنت، وانتظري حتى تظهر حالة الملفات مكتملة.</span>
+            <span data-i18n="how_to_1">افتحي الموقع في Safari أثناء الاتصال بالإنترنت وانتظري حتى تكتمل الملفات.</span>
           </li>
           <li>
             <span class="guide-num" aria-hidden="true">2</span>
-            <span data-i18n="how_to_2">من زر المشاركة في Safari اختاري «إضافة إلى الشاشة الرئيسية».</span>
+            <span data-i18n="how_to_2">اضغطي زر المشاركة (Share) في Safari واختاري «إضافة إلى الشاشة الرئيسية» (Add to Home Screen).</span>
           </li>
           <li>
             <span class="guide-num" aria-hidden="true">3</span>
-            <span data-i18n="how_to_3">أغلقي Safari، أوقفي Wi-Fi والبيانات، وافتحي التطبيق من الأيقونة.</span>
+            <span data-i18n="how_to_3">أغلقي المتصفح، ثم افتحي التطبيق من أيقونة الشاشة الرئيسية واستخدميه بحرية حتى دون إنترنت!</span>
           </li>
         </ol>
       </section>

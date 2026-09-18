@@ -1,189 +1,241 @@
-import type { Locale, Theme, VoiceState } from "./types.js";
+import type {
+  Locale,
+  Theme,
+  VoiceState,
+  PlayerState,
+  VocabularyItem,
+} from "./types.js";
 import { describeVoice } from "./speech.js";
 import { OCR_ASSET_PATHS } from "./ocr.js";
 
 // ---------------------------------------------------------------------------
-// i18n strings
+// Translations
 // ---------------------------------------------------------------------------
 
 export const translations: Record<Locale, Record<string, string>> = {
   ar: {
     app_name: "قارئ الإنجليزية",
-    compatibility_label: "اختبار التوافق",
-    headline: "اختبار بسيط قبل البدء",
-    intro: "نتأكد من الكاميرا وقراءة الصورة والصوت والعمل دون إنترنت.",
+    compatibility_label: "قارئ المفردات التعليمي",
+    headline: "صوّري الصفحة واسمعي الكلمات",
+    intro: "صوّري أي صفحة إنجليزية، وسيقوم التطبيق بقراءة الكلمات وتكرارها 3 مرات بالإنجليزية ثم معناها بالعربية.",
 
-    photo_title: "اختاري صورة الصفحة",
-    photo_copy: "صوّري صفحة إنجليزية أو اختاري صورة محفوظة.",
+    // Steps
+    step1_title: "1. اختاري صورة الصفحة",
+    step1_copy: "صوّري صفحة من كتاب مدرسي أو اختاري صورة محفوظة.",
     take_photo: "صوّري الصفحة",
     choose_photo: "اختاري صورة",
+    try_sample: "جرّبي صفحة تدريبية",
     image_idle: "لم يتم اختيار صورة بعد.",
+    image_selected: "تم اختيار الصورة بنجاح: {name}",
+    camera_photo: "صورة الكاميرا",
+    sample_loaded: "تم تحميل الصفحة التدريبية النموذجية.",
 
-    ocr_title: "اقرئي النص من الصورة",
-    ocr_copy: "يعمل محرك القراءة على الهاتف، ولا تُرسل الصورة إلى أي مكان.",
-    start_ocr: "ابدئي قراءة الصورة",
+    // OCR & Vocabulary
+    step2_title: "2. استخراج الكلمات",
+    step2_copy: "قراءة النص محليًا داخل الهاتف دون اتصال بالإنترنت.",
+    start_ocr: "ابدئي قراءة واستخراج الكلمات",
     ocr_idle: "اختاري صورة أولاً.",
-    ocr_result_label: "النص الذي قرأه التطبيق",
-    ocr_placeholder: "سيظهر النص هنا بعد الاختبار.",
+    preparing_image: "جارٍ تجهيز وتحسين وضوح الصورة…",
+    loading_ocr: "جارٍ تشغيل محرك القراءة المحلي…",
+    ocr_progress: "جارٍ القراءة: {percent}٪",
+    ocr_failed: "لم نتمكن من قراءة الصورة. جرّبي التقاط صورة أكثر وضوحًا وإضاءة.",
+    ocr_empty: "اكتمل الفحص، لكن لم يُعثر على كلمات إنجليزية واضحة.",
+    words_found: "تم العثور على {count} كلمة جاهزة للاستماع!",
 
-    speech_title: "اختبري الأصوات",
-    speech_copy: "اضغطي الزر لسماع كل لغة من أصوات الهاتف المتاحة.",
+    // Player
+    step3_title: "3. الاستماع والتكرار",
+    step3_copy: "ينطق الكلمة الإنجليزية 3 مرات ثم المعنى بالعربية تلقائيًا.",
+    current_word_label: "الكلمة الحالية",
+    word_counter: "الكلمة {current} من {total}",
+    play: "ابدأ القراءة",
+    resume: "استئناف",
+    pause: "إيقاف مؤقت",
+    stop: "إيقاف",
+    next_word: "التالية",
+    prev_word: "السابقة",
+    replay_word: "إعادة الكلمة",
+    step_en: "إنجليزية {num}",
+    step_ar: "العربية",
+    player_idle: "اضغطي «ابدأ القراءة» لبدء نطق الكلمات.",
+    player_completed: "أحسنتِ! تم الانتهاء من قراءة جميع كلمات الصفحة.",
+    tap_to_listen: "اضغطي على أي كلمة للاستماع إليها مباشرة",
+
+    // Word List
+    words_list_title: "قائمة الكلمات المستخرجة ({count})",
+    no_meaning: "لم نجد معنى محفوظًا",
+
+    // Settings & Diagnostics Toggle
+    settings_toggle: "الإعدادات والفحص",
+    settings_title: "إعدادات القراءة",
+    speed_label: "سرعة الصوت:",
+    repetitions_label: "عدد مرات تكرار الكلمة:",
+    vocab_mode_label: "نوع استخراج الكلمات:",
+    mode_learning: "كلمات الدروس المهمة (موصى به)",
+    mode_all: "جميع الكلمات المستخرجة",
+    times: "مرات",
+
+    // Diagnostics
+    diagnostics_title: "فحص الجهاز والتوافق مع الهاتف",
     test_english: "اختبار الإنجليزية",
     test_arabic: "اختبار العربية",
     stop_audio: "إيقاف الصوت",
     english_voice: "صوت الإنجليزية",
     arabic_voice: "صوت العربية",
-
-    offline_title: "العمل دون إنترنت",
-    offline_copy: "تظهر علامة الجاهزية فقط بعد حفظ ملفات القراءة محليًا.",
-    offline_idle: "جارٍ فحص الملفات المحلية…",
+    offline_title: "حالة العمل دون إنترنت",
     service_worker: "Service Worker",
     browser: "المتصفح",
     indexeddb: "IndexedDB",
-    ocr_version: "إصدار OCR",
-    ocr_worker: "ملف OCR worker",
-    ocr_core: "نواة OCR",
-    ocr_language: "نموذج الإنجليزية",
+    ocr_version: "إصدار محرك القراءة",
+    ocr_worker: "ملف Web Worker",
+    ocr_core: "نواة WebAssembly",
+    ocr_language: "نموذج اللغة الإنجليزية",
     refresh: "تحديث الفحص",
+    raw_ocr_label: "النص الخام الذي قرأه المحرك",
 
-    switch_to_en: "EN",
-    switch_to_ar: "ع",
+    // Status Messages
     switch_light: "تفعيل المظهر الفاتح",
     switch_dark: "تفعيل المظهر الداكن",
-
     no_english_voice: "لا يتوفر صوت إنجليزي على هذا الجهاز.",
     no_arabic_voice: "لا يتوفر صوت عربي على هذا الجهاز.",
-    local: "محلي",
+    local: "محلي ويعمل دون إنترنت",
     online_voice: "قد يحتاج إنترنت",
-    speech_unavailable: "الصوت غير متاح في هذا المتصفح.",
-    requested_voice_unavailable: "الصوت المطلوب غير متاح على هذا الجهاز.",
-
-    image_only: "اختاري ملف صورة فقط.",
-    image_selected: "تم اختيار الصورة: {name}.",
-    camera_photo: "صورة الكاميرا",
-    image_ready: "الصورة جاهزة. ابدئي اختبار القراءة.",
-    preparing_image: "جارٍ تجهيز الصورة…",
-    loading_ocr: "جارٍ تحميل محرك القراءة المحلي…",
-    ocr_progress: "جارٍ {status}: {percent}٪",
-    ocr_success: "نجح اختبار قراءة النص المحلي.",
-    ocr_empty: "اكتمل الاختبار، لكن لم يُعثر على نص واضح.",
-    ocr_failed: "لم نتمكن من قراءة الصورة. جرّبي صورة أوضح.",
-
+    speech_unavailable: "الصوت غير مدعوم في هذا المتصفح.",
+    image_only: "يرجى اختيار ملف صورة فقط.",
     storage_unavailable: "التخزين دون إنترنت غير متاح في هذا المتصفح.",
     unavailable: "غير متاح",
-    sw_ready: "جاهز",
-    sw_installing: "قيد التثبيت — أعيدي فتح الصفحة مرة واحدة.",
+    sw_ready: "جاهز ومفعّل",
+    sw_installing: "قيد التثبيت — يُرجى إعادة فتح الصفحة.",
     available: "متاح",
-    cached: "مخزّن ✓",
+    cached: "مخزّن محليًا ✓",
     not_cached: "غير مخزّن",
-    offline_ready: "جاهز للعمل دون إنترنت: تم تخزين ملفات الاختبار الأساسية.",
-    offline_wait:
-      "التخزين لم يكتمل بعد. اتركي الصفحة مفتوحة مع الإنترنت ثم حدّثي الفحص.",
-    sw_failed: "تعذّر تثبيت Service Worker.",
+    offline_ready: "جاهز للعمل دون إنترنت: تم تخزين جميع الملفات المطلوبة بنجاح.",
+    offline_wait: "التخزين لم يكتمل بعد. اتركي الصفحة مفتوحة مع الاتصال بالإنترنت ثم حدّثي الفحص.",
+    sw_failed: "تعذّر تسجيل Service Worker.",
 
-    how_to_title: "طريقة الاختبار على الهاتف",
-    how_to_1: "افتحي الصفحة مع الإنترنت، وانتظري حتى تظهر حالة الملفات مكتملة.",
-    how_to_2: "من زر المشاركة في Safari اختاري «إضافة إلى الشاشة الرئيسية».",
-    how_to_3: "أغلقي Safari، أوقفي Wi-Fi والبيانات، وافتحي التطبيق من الأيقونة.",
+    // How-to guide
+    how_to_title: "طريقة الاستخدام والتثبيت على iPhone",
+    how_to_1: "افتحي الموقع في Safari أثناء الاتصال بالإنترنت وانتظري حتى تكتمل الملفات.",
+    how_to_2: "اضغطي زر المشاركة (Share) في Safari واختاري «إضافة إلى الشاشة الرئيسية» (Add to Home Screen).",
+    how_to_3: "أغلقي المتصفح، ثم افتحي التطبيق من أيقونة الشاشة الرئيسية واستخدميه بحرية حتى دون إنترنت!",
   },
 
   en: {
     app_name: "English Reader",
-    compatibility_label: "COMPATIBILITY TEST",
-    headline: "A simple test before we begin",
-    intro: "We check the camera, image reading, speech, and offline use.",
+    compatibility_label: "Vocabulary Learning Reader",
+    headline: "Photograph the Page & Listen to Words",
+    intro: "Take a photo of an English textbook page. The app reads and repeats each word 3 times in English, followed by its Arabic meaning.",
 
-    photo_title: "Choose a page photo",
-    photo_copy:
-      "Take a photo of an English page or choose one already saved.",
-    take_photo: "Take a photo",
-    choose_photo: "Choose a photo",
+    // Steps
+    step1_title: "1. Choose a Page Photo",
+    step1_copy: "Take a photo of an English textbook or select a saved image.",
+    take_photo: "Take a Photo",
+    choose_photo: "Choose a Photo",
+    try_sample: "Try Sample Page",
     image_idle: "No photo selected yet.",
+    image_selected: "Photo selected: {name}",
+    camera_photo: "Camera Photo",
+    sample_loaded: "Sample textbook page loaded.",
 
-    ocr_title: "Read the text in the photo",
-    ocr_copy: "The reader runs on the phone. Your photo is not sent anywhere.",
-    start_ocr: "Start reading the photo",
-    ocr_idle: "Choose a photo first.",
-    ocr_result_label: "Text read by the app",
-    ocr_placeholder: "Text will appear here after the test.",
+    // OCR & Vocabulary
+    step2_title: "2. Extract Vocabulary",
+    step2_copy: "Reads text completely on-device without internet access.",
+    start_ocr: "Start Reading & Extracting Words",
+    ocr_idle: "Please choose an image first.",
+    preparing_image: "Preparing & enhancing image contrast…",
+    loading_ocr: "Starting local OCR engine…",
+    ocr_progress: "Reading: {percent}%",
+    ocr_failed: "Could not read this photo. Try taking a clearer, well-lit picture.",
+    ocr_empty: "OCR finished, but no clear English words were found.",
+    words_found: "Found {count} vocabulary words ready to learn!",
 
-    speech_title: "Test the voices",
-    speech_copy: "Tap a button to hear each available phone voice.",
+    // Player
+    step3_title: "3. Listen & Repeat",
+    step3_copy: "Speaks each English word 3 times, then its Arabic meaning automatically.",
+    current_word_label: "Current Word",
+    word_counter: "Word {current} of {total}",
+    play: "Start Reading",
+    resume: "Resume",
+    pause: "Pause",
+    stop: "Stop",
+    next_word: "Next",
+    prev_word: "Previous",
+    replay_word: "Replay",
+    step_en: "English {num}",
+    step_ar: "Arabic",
+    player_idle: "Tap 'Start Reading' to begin speech playback.",
+    player_completed: "Great job! Finished reading all words from this page.",
+    tap_to_listen: "Tap any word to listen to it directly",
+
+    // Word List
+    words_list_title: "Extracted Vocabulary ({count})",
+    no_meaning: "Meaning not available",
+
+    // Settings & Diagnostics Toggle
+    settings_toggle: "Settings & Diagnostics",
+    settings_title: "Reading Settings",
+    speed_label: "Voice Speed:",
+    repetitions_label: "Word Repetitions:",
+    vocab_mode_label: "Vocabulary Extraction Mode:",
+    mode_learning: "Important Lesson Words (Recommended)",
+    mode_all: "All Extracted Words",
+    times: "times",
+
+    // Diagnostics
+    diagnostics_title: "Device & iPhone Compatibility Diagnostics",
     test_english: "Test English",
     test_arabic: "Test Arabic",
-    stop_audio: "Stop audio",
-    english_voice: "English voice",
-    arabic_voice: "Arabic voice",
-
-    offline_title: "Work offline",
-    offline_copy:
-      "The ready mark appears only after the reader files are saved locally.",
-    offline_idle: "Checking local files…",
+    stop_audio: "Stop Audio",
+    english_voice: "English Voice",
+    arabic_voice: "Arabic Voice",
+    offline_title: "Offline Readiness Status",
     service_worker: "Service Worker",
     browser: "Browser",
     indexeddb: "IndexedDB",
-    ocr_version: "OCR version",
-    ocr_worker: "OCR worker",
-    ocr_core: "OCR core",
-    ocr_language: "English model",
-    refresh: "Refresh check",
+    ocr_version: "OCR Engine Version",
+    ocr_worker: "Web Worker File",
+    ocr_core: "WebAssembly Core",
+    ocr_language: "English Model",
+    refresh: "Refresh Check",
+    raw_ocr_label: "Raw Text Read by Engine",
 
-    switch_to_en: "EN",
-    switch_to_ar: "ع",
-    switch_light: "Use light theme",
-    switch_dark: "Use dark theme",
-
+    // Status Messages
+    switch_light: "Use Light Theme",
+    switch_dark: "Use Dark Theme",
     no_english_voice: "No English voice is available on this device.",
     no_arabic_voice: "No Arabic voice is available on this device.",
-    local: "local",
-    online_voice: "may need internet",
-    speech_unavailable: "Speech is not available in this browser.",
-    requested_voice_unavailable:
-      "The requested voice is not available on this device.",
-
+    local: "Local (works offline)",
+    online_voice: "May require internet",
+    speech_unavailable: "Speech is not supported in this browser.",
     image_only: "Please choose an image file.",
-    image_selected: "Photo selected: {name}.",
-    camera_photo: "Camera photo",
-    image_ready: "Your photo is ready. Start the reading test.",
-    preparing_image: "Preparing the photo…",
-    loading_ocr: "Loading the local reading engine…",
-    ocr_progress: "{status}: {percent}%",
-    ocr_success: "The local text-reading test passed.",
-    ocr_empty: "The test completed, but no clear text was found.",
-    ocr_failed: "We could not read this photo. Try a clearer one.",
-
-    storage_unavailable: "Offline storage is unavailable in this browser.",
+    storage_unavailable: "Offline storage is not available in this browser.",
     unavailable: "Unavailable",
-    sw_ready: "Ready",
-    sw_installing: "Installing — reopen the page once.",
+    sw_ready: "Ready & Active",
+    sw_installing: "Installing — please reopen the page.",
     available: "Available",
-    cached: "Cached ✓",
-    not_cached: "Not cached",
-    offline_ready: "Ready for offline use: core files are saved.",
-    offline_wait:
-      "Storage is not complete yet. Keep this page open with internet, then refresh.",
-    sw_failed: "The Service Worker could not be installed.",
+    cached: "Locally Cached ✓",
+    not_cached: "Not Cached",
+    offline_ready: "Ready for offline use: all required files are stored.",
+    offline_wait: "Storage in progress. Keep page open with internet, then refresh.",
+    sw_failed: "Could not register Service Worker.",
 
-    how_to_title: "How to test on your phone",
-    how_to_1:
-      "Open the page with internet and wait until files show as complete.",
-    how_to_2: "In Safari tap the Share button → \"Add to Home Screen\".",
-    how_to_3:
-      "Close Safari, turn off Wi-Fi and data, open the app from the icon.",
+    // How-to guide
+    how_to_title: "How to Install & Use on iPhone",
+    how_to_1: "Open the site in Safari while online and wait until offline files are cached.",
+    how_to_2: "Tap the Safari Share button and choose 'Add to Home Screen'.",
+    how_to_3: "Close Safari, open the app from your home screen, and use it freely even offline!",
   },
 };
 
 // ---------------------------------------------------------------------------
-// DOM helpers
+// DOM Helpers
 // ---------------------------------------------------------------------------
 
-function req<T extends HTMLElement>(id: string): T {
+export function req<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
   if (!el) throw new Error(`Missing required element: #${id}`);
   return el as T;
 }
 
-/** Replace `{key}` tokens in a template string. */
 function interpolate(
   template: string,
   vars: Record<string, string | number>,
@@ -194,7 +246,6 @@ function interpolate(
   );
 }
 
-/** Translate a key for the current locale with optional variable interpolation. */
 export function t(
   locale: Locale,
   key: string,
@@ -214,7 +265,7 @@ export function showStatus(
 }
 
 // ---------------------------------------------------------------------------
-// Render functions
+// Theme & Locale Rendering
 // ---------------------------------------------------------------------------
 
 export function renderTheme(theme: Theme): void {
@@ -228,15 +279,13 @@ export function renderLocale(locale: Locale): void {
   html.lang = locale;
   html.dir = locale === "ar" ? "rtl" : "ltr";
   document.title =
-    locale === "ar" ? "اختبار قارئ الإنجليزية" : "English Reader Test";
+    locale === "ar" ? "قارئ الكلمات الإنجليزية" : "English Vocabulary Reader";
 
-  // Translate all data-i18n text nodes
   document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((node) => {
     const key = node.dataset["i18n"];
     if (key) node.textContent = t(locale, key);
   });
 
-  // Translate placeholder attributes
   document
     .querySelectorAll<HTMLTextAreaElement>("[data-i18n-placeholder]")
     .forEach((node) => {
@@ -244,7 +293,6 @@ export function renderLocale(locale: Locale): void {
       if (key) node.placeholder = t(locale, key);
     });
 
-  // Update toggle buttons
   const langBtn = req<HTMLButtonElement>("language-toggle");
   langBtn.textContent = locale === "ar" ? "EN" : "ع";
   langBtn.setAttribute(
@@ -254,28 +302,165 @@ export function renderLocale(locale: Locale): void {
 }
 
 // ---------------------------------------------------------------------------
-// Voice status display
+// Voice Status Rendering
 // ---------------------------------------------------------------------------
 
-export function renderVoiceStatus(
-  locale: Locale,
-  voices: VoiceState,
-): void {
+export function renderVoiceStatus(locale: Locale, voices: VoiceState): void {
   const translate = (key: string) => t(locale, key);
-  showStatus(
-    req("english-voice"),
-    describeVoice(voices.english, "english", translate),
-    voices.english ? "success" : "error",
-  );
-  showStatus(
-    req("arabic-voice"),
-    describeVoice(voices.arabic, "arabic", translate),
-    voices.arabic ? "success" : "error",
-  );
+  const enStatus = document.getElementById("english-voice");
+  const arStatus = document.getElementById("arabic-voice");
+
+  if (enStatus) {
+    showStatus(
+      enStatus,
+      describeVoice(voices.english, "english", translate),
+      voices.english ? "success" : "error",
+    );
+  }
+
+  if (arStatus) {
+    showStatus(
+      arStatus,
+      describeVoice(voices.arabic, "arabic", translate),
+      voices.arabic ? "success" : "error",
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Offline diagnostics
+// Player Display Rendering
+// ---------------------------------------------------------------------------
+
+export function renderPlayerUI(
+  state: PlayerState,
+  currentItem: VocabularyItem | undefined,
+  locale: Locale,
+): void {
+  const playerCard = document.getElementById("player-card");
+  if (!playerCard) return;
+
+  const currentWordEl = req<HTMLElement>("player-current-word");
+  const arabicMeaningEl = req<HTMLElement>("player-arabic-meaning");
+  const counterEl = req<HTMLElement>("player-counter");
+  const playPauseBtn = req<HTMLButtonElement>("player-play-pause");
+  const playPauseText = req<HTMLElement>("player-play-pause-text");
+  const stepsContainer = req<HTMLElement>("player-steps");
+
+  if (!currentItem || state.totalWords === 0) {
+    currentWordEl.textContent = "—";
+    arabicMeaningEl.textContent = t(locale, "player_idle");
+    counterEl.textContent = "";
+    playPauseBtn.disabled = true;
+    stepsContainer.innerHTML = "";
+    return;
+  }
+
+  playPauseBtn.disabled = false;
+  currentWordEl.textContent = currentItem.word;
+  arabicMeaningEl.textContent = currentItem.arabicMeaning;
+  counterEl.textContent = t(locale, "word_counter", {
+    current: state.currentIndex + 1,
+    total: state.totalWords,
+  });
+
+  // Update Play / Pause button state
+  if (state.status === "playing") {
+    playPauseText.textContent = t(locale, "pause");
+    playPauseBtn.setAttribute("data-action", "pause");
+  } else if (state.status === "paused") {
+    playPauseText.textContent = t(locale, "resume");
+    playPauseBtn.setAttribute("data-action", "resume");
+  } else if (state.status === "completed") {
+    playPauseText.textContent = t(locale, "play");
+    playPauseBtn.setAttribute("data-action", "play");
+    arabicMeaningEl.textContent = t(locale, "player_completed");
+  } else {
+    playPauseText.textContent = t(locale, "play");
+    playPauseBtn.setAttribute("data-action", "play");
+  }
+
+  // Render repetition step pills
+  let stepsHtml = "";
+  for (let r = 1; r <= state.repetitions; r++) {
+    const isCurrent =
+      state.status === "playing" &&
+      !state.isSpeakingArabic &&
+      state.currentRepetition === r;
+    const isDone =
+      (state.status === "playing" && state.currentRepetition > r) ||
+      state.isSpeakingArabic;
+    const cls = isCurrent ? "step-pill active" : isDone ? "step-pill done" : "step-pill";
+    stepsHtml += `<span class="${cls}">EN ${r}</span>`;
+  }
+
+  const arCurrent = state.status === "playing" && state.isSpeakingArabic;
+  const arCls = arCurrent ? "step-pill active arabic-pill" : "step-pill arabic-pill";
+  stepsHtml += `<span class="${arCls}">عربي</span>`;
+
+  stepsContainer.innerHTML = stepsHtml;
+
+  // Highlight active word in the vocabulary list
+  document.querySelectorAll(".vocab-row").forEach((row, idx) => {
+    if (idx === state.currentIndex) {
+      row.classList.add("active-row");
+      row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else {
+      row.classList.remove("active-row");
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Word List Rendering
+// ---------------------------------------------------------------------------
+
+export function renderWordList(
+  words: VocabularyItem[],
+  currentIndex: number,
+  onSelectWord: (index: number) => void,
+): void {
+  const container = document.getElementById("words-list-container");
+  const countBadge = document.getElementById("words-count-badge");
+  if (!container) return;
+
+  if (countBadge) {
+    countBadge.textContent = String(words.length);
+  }
+
+  if (words.length === 0) {
+    container.innerHTML = `<p class="empty-list-notice">لا توجد كلمات بعد. صوّري صفحة للبدء.</p>`;
+    return;
+  }
+
+  container.innerHTML = words
+    .map(
+      (item, idx) => `
+    <button type="button" class="vocab-row ${idx === currentIndex ? "active-row" : ""}" data-index="${idx}">
+      <span class="vocab-index">${idx + 1}</span>
+      <div class="vocab-details">
+        <span class="vocab-en">${item.word}</span>
+        <span class="vocab-ar">${item.arabicMeaning}</span>
+      </div>
+      <span class="vocab-play-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      </span>
+    </button>
+  `,
+    )
+    .join("");
+
+  container.querySelectorAll<HTMLButtonElement>(".vocab-row").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset["index"] || "0", 10);
+      onSelectWord(idx);
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Offline Diagnostics
 // ---------------------------------------------------------------------------
 
 async function isCached(path: string): Promise<boolean> {
@@ -291,61 +476,73 @@ async function isCached(path: string): Promise<boolean> {
 export async function refreshOfflineDiagnostics(locale: Locale): Promise<void> {
   const translate = (key: string) => t(locale, key);
 
-  const browserStatus = req("browser-status");
-  const indexedDbStatus = req("indexeddb-status");
-  const swStatus = req("sw-status");
-  const offlineStatus = req("offline-status");
-  const workerCache = req("worker-cache");
-  const coreCache = req("core-cache");
-  const languageCache = req("language-cache");
+  const browserStatus = document.getElementById("browser-status");
+  const indexedDbStatus = document.getElementById("indexeddb-status");
+  const swStatus = document.getElementById("sw-status");
+  const offlineStatus = document.getElementById("offline-status");
+  const workerCache = document.getElementById("worker-cache");
+  const coreCache = document.getElementById("core-cache");
+  const languageCache = document.getElementById("language-cache");
 
-  showStatus(browserStatus, navigator.userAgent);
+  if (browserStatus) showStatus(browserStatus, navigator.userAgent);
 
   const hasIndexedDb = "indexedDB" in window;
-  showStatus(
-    indexedDbStatus,
-    hasIndexedDb ? translate("available") : translate("unavailable"),
-    hasIndexedDb ? "success" : "error",
-  );
+  if (indexedDbStatus) {
+    showStatus(
+      indexedDbStatus,
+      hasIndexedDb ? translate("available") : translate("unavailable"),
+      hasIndexedDb ? "success" : "error",
+    );
+  }
 
   if (!("serviceWorker" in navigator) || !("caches" in window)) {
-    showStatus(offlineStatus, translate("storage_unavailable"), "error");
-    showStatus(swStatus, translate("unavailable"), "error");
+    if (offlineStatus) showStatus(offlineStatus, translate("storage_unavailable"), "error");
+    if (swStatus) showStatus(swStatus, translate("unavailable"), "error");
     return;
   }
 
   const registration = await navigator.serviceWorker.getRegistration();
   const swActive = Boolean(registration?.active);
-  showStatus(
-    swStatus,
-    swActive ? translate("sw_ready") : translate("sw_installing"),
-    swActive ? "success" : "normal",
-  );
+  if (swStatus) {
+    showStatus(
+      swStatus,
+      swActive ? translate("sw_ready") : translate("sw_installing"),
+      swActive ? "success" : "normal",
+    );
+  }
 
   const [workerOk, coreOk, langOk] = await Promise.all(
     OCR_ASSET_PATHS.map(isCached),
   );
 
-  showStatus(
-    workerCache,
-    workerOk ? translate("cached") : translate("not_cached"),
-    workerOk ? "success" : "error",
-  );
-  showStatus(
-    coreCache,
-    coreOk ? translate("cached") : translate("not_cached"),
-    coreOk ? "success" : "error",
-  );
-  showStatus(
-    languageCache,
-    langOk ? translate("cached") : translate("not_cached"),
-    langOk ? "success" : "error",
-  );
+  if (workerCache) {
+    showStatus(
+      workerCache,
+      workerOk ? translate("cached") : translate("not_cached"),
+      workerOk ? "success" : "error",
+    );
+  }
+  if (coreCache) {
+    showStatus(
+      coreCache,
+      coreOk ? translate("cached") : translate("not_cached"),
+      coreOk ? "success" : "error",
+    );
+  }
+  if (languageCache) {
+    showStatus(
+      languageCache,
+      langOk ? translate("cached") : translate("not_cached"),
+      langOk ? "success" : "error",
+    );
+  }
 
   const allReady = swActive && workerOk && coreOk && langOk;
-  showStatus(
-    offlineStatus,
-    allReady ? translate("offline_ready") : translate("offline_wait"),
-    allReady ? "success" : "normal",
-  );
+  if (offlineStatus) {
+    showStatus(
+      offlineStatus,
+      allReady ? translate("offline_ready") : translate("offline_wait"),
+      allReady ? "success" : "normal",
+    );
+  }
 }
