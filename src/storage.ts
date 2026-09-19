@@ -12,6 +12,9 @@ const SPEED_KEY = "reader-speed";
 const REPETITIONS_KEY = "reader-repetitions";
 const VOCAB_MODE_KEY = "reader-vocab-mode";
 const CACHED_WORDS_KEY = "reader-cached-words";
+const CUSTOM_MEANINGS_KEY = "reader-custom-meanings";
+const EN_VOICE_KEY = "reader-en-voice";
+const AR_VOICE_KEY = "reader-ar-voice";
 
 function safeGet(key: string): string | null {
   try {
@@ -50,8 +53,8 @@ export function saveTheme(theme: Theme): void {
 export function readSpeed(): number {
   const stored = safeGet(SPEED_KEY);
   const parsed = stored ? parseFloat(stored) : NaN;
-  const allowed = [0.6, 0.75, 0.9, 1.0, 1.15];
-  return allowed.includes(parsed) ? parsed : 0.75;
+  const allowed = [0.8, 0.9, 1.0, 1.1, 1.25];
+  return allowed.includes(parsed) ? parsed : 1.0;
 }
 
 export function saveSpeed(speed: number): void {
@@ -76,6 +79,34 @@ export function readVocabMode(): VocabularyMode {
 
 export function saveVocabMode(mode: VocabularyMode): void {
   safeSet(VOCAB_MODE_KEY, mode);
+}
+
+export function readPreferredVoiceUri(language: "english" | "arabic"): string | null {
+  return safeGet(language === "english" ? EN_VOICE_KEY : AR_VOICE_KEY);
+}
+
+export function savePreferredVoiceUri(language: "english" | "arabic", uri: string): void {
+  safeSet(language === "english" ? EN_VOICE_KEY : AR_VOICE_KEY, uri);
+}
+
+export function readCustomMeanings(): Record<string, string> {
+  try {
+    const raw = safeGet(CUSTOM_MEANINGS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+export function saveCustomMeaning(word: string, meaning: string): void {
+  try {
+    const current = readCustomMeanings();
+    current[word.trim().toLowerCase()] = meaning.trim();
+    safeSet(CUSTOM_MEANINGS_KEY, JSON.stringify(current));
+  } catch {
+    // Best effort
+  }
 }
 
 export function readUserPreferences(): UserPreferences {

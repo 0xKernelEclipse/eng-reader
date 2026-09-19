@@ -3,9 +3,11 @@
  *
  * Designed for older WebKit / Safari 15.8.8 and modern browsers:
  * - Robust queue management for repeating sequences: [English x N] -> [Arabic x 1]
+ * - Voice ranking algorithm preferring Natural/Neural, Google, and Apple high-quality voices
+ * - Explicit language and voice binding to prevent wrong-accent/phoneme pronunciation
  * - Retains active utterance reference to prevent Safari GC cutoffs
- * - Short inter-utterance pause (200ms) for natural cadence
- * - Full controls: play, pause, resume, stop, next, previous, replay, jump
+ * - Default natural rate (1.0) with clean pitch and no robotic timestretch distortion
+ * - Full playback controls: play, pause, resume, stop, next, previous, replay, jump
  */
 
 import type {
@@ -16,27 +18,131 @@ import type {
 } from "./types.js";
 
 // ---------------------------------------------------------------------------
-// Voice Selection & Diagnostics
+// Voice Quality Scoring & Selection
 // ---------------------------------------------------------------------------
 
+/**
+ * Score a voice based on quality, accent, and platform engine.
+ * Higher score = higher priority.
+ */
+function scoreVoice(voice: SpeechSynthesisVoice, language: "english" | "arabic"): number {
+  const lang = voice.lang.toLowerCase().replace(/_/g, "-");
+  const name = voice.name.toLowerCase();
+
+  if (language === "english") {
+    // Must be an English voice
+    if (!lang.startsWith("en")) return -10000;
+
+    let score = 50;
+
+    // Dialect preference: en-US, en-GB
+    if (lang === "en-us") score += 30;
+    else if (lang === "en-gb") score += 25;
+    else if (lang.startsWith("en")) score += 10;
+
+    // Quality boosters: Modern Neural / Natural voices (Edge, Windows 11)
+    if (name.includes("natural") || name.includes("online (natural)")) score += 300;
+    // Google voices (Chrome, Android)
+    if (name.includes("google")) score += 200;
+    // Apple premium voices (iOS, macOS)
+    if (
+      name.includes("samantha") ||
+      name.includes("daniel") ||
+      name.includes("karen") ||
+      name.includes("siri") ||
+      name.includes("ava") ||
+      name.includes("premium") ||
+      name.includes("enhanced")
+    ) {
+      score += 250;
+    }
+    // Windows Zira is clearer than ancient David
+    if (name.includes("zira")) score += 80;
+    if (name.includes("jenny") || name.includes("aria") || name.includes("guy")) score += 150;
+
+    // Penalize legacy robotic desktop SAPI voices (like Windows David Desktop)
+    if (name.includes("desktop")) score -= 30;
+    if (name.includes("david") && !name.includes("natural")) score -= 20;
+
+    return score;
+  } else {
+    // Arabic
+    if (!lang.startsWith("ar")) return -10000;
+
+    let score = 50;
+
+    // Dialect preference: Egyptian (ar-EG) is widely understood school standard
+    if (lang === "ar-eg") score += 40;
+    else if (lang === "ar-sa") score += 30;
+    else if (lang.startsWith("ar")) score += 20;
+
+    // Quality boosters
+    if (name.includes("natural") || name.includes("online (natural)")) score += 300;
+    if (name.includes("google")) score += 200;
+    if (
+      name.includes("salma") ||
+      name.includes("shakir") ||
+      name.includes("maged") ||
+      name.includes("tarik") ||
+      name.includes("laila") ||
+      name.includes("mariam") ||
+      name.includes("hoda")
+    ) {
+      score += 150;
+    }
+
+    return score;
+  }
+}
+
+let preferredEnglishUri: string | null = null;
+let preferredArabicUri: string | null = null;
+
+export function setPreferredVoiceUri(language: "english" | "arabic", uri: string | null): void {
+  if (language === "english") preferredEnglishUri = uri;
+  else preferredArabicUri = uri;
+}
+
+export function getPreferredVoiceUri(language: "english" | "arabic"): string | null {
+  return language === "english" ? preferredEnglishUri : preferredArabicUri;
+}
+
+/**
+ * Filter all available voices for a given language, sorted by quality score descending.
+ */
+export function getAvailableVoicesForLanguage(
+  language: "english" | "arabic",
+): SpeechSynthesisVoice[] {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+  const available = window.speechSynthesis.getVoices();
+  const prefix = language === "english" ? "en" : "ar";
+
+  return available
+    .filter((v) => v.lang.toLowerCase().startsWith(prefix))
+    .sort((a, b) => scoreVoice(b, language) - scoreVoice(a, language));
+}
+
+/**
+ * Pick the best available voice for a language.
+ */
 export function chooseVoice(
   available: SpeechSynthesisVoice[],
   language: "english" | "arabic",
 ): SpeechSynthesisVoice | undefined {
-  const preferred =
-    language === "english"
-      ? ["en-US", "en-GB", "en"]
-      : ["ar-EG", "ar-SA", "ar"];
+  if (!available || available.length === 0) return undefined;
 
-  for (const tag of preferred) {
-    const exact = available.find(
-      (v) => v.lang.toLowerCase() === tag.toLowerCase(),
-    );
-    if (exact) return exact;
+  const targetUri = language === "english" ? preferredEnglishUri : preferredArabicUri;
+  if (targetUri) {
+    const matched = available.find((v) => v.voiceURI === targetUri || v.name === targetUri);
+    if (matched) return matched;
   }
 
-  const root = language === "english" ? "en" : "ar";
-  return available.find((v) => v.lang.toLowerCase().startsWith(root));
+  const prefix = language === "english" ? "en" : "ar";
+  const candidates = available.filter((v) => v.lang.toLowerCase().startsWith(prefix));
+  if (candidates.length === 0) return undefined;
+
+  candidates.sort((a, b) => scoreVoice(b, language) - scoreVoice(a, language));
+  return candidates[0];
 }
 
 export function describeVoice(
@@ -69,18 +175,33 @@ let testUtterance: SpeechSynthesisUtterance | null = null;
 export function speak(
   text: string,
   voice: SpeechSynthesisVoice | undefined,
-  rate = 0.75,
+  rate = 1.0,
 ): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   const synth = window.speechSynthesis;
   synth.cancel();
 
-  testUtterance = new SpeechSynthesisUtterance(text);
-  if (voice) {
-    testUtterance.voice = voice;
-    testUtterance.lang = voice.lang;
+  // Fresh voice lookup if not provided
+  let resolvedVoice = voice;
+  if (!resolvedVoice) {
+    const available = synth.getVoices();
+    // Check if English or Arabic by characters
+    const hasArabicChars = /[\u0600-\u06FF]/.test(text);
+    resolvedVoice = chooseVoice(available, hasArabicChars ? "arabic" : "english");
   }
-  testUtterance.rate = rate;
+
+  testUtterance = new SpeechSynthesisUtterance(text);
+  if (resolvedVoice) {
+    testUtterance.voice = resolvedVoice;
+    testUtterance.lang = resolvedVoice.lang;
+  } else {
+    testUtterance.lang = /[\u0600-\u06FF]/.test(text) ? "ar-EG" : "en-US";
+  }
+
+  // Use natural pitch and rate (clamp rate between 0.5 and 1.5)
+  testUtterance.rate = Math.max(0.6, Math.min(rate, 1.4));
+  testUtterance.pitch = 1.0;
+
   testUtterance.onend = () => {
     testUtterance = null;
   };
@@ -110,7 +231,7 @@ export class VocabularyPlayer {
   private isSpeakingArabic = false;
   private status: PlaybackStatus = "idle";
   private repetitions = 3;
-  private speed = 0.75;
+  private speed = 1.0; // Default to 1.0 (natural normal human rate)
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private timer: number | null = null;
   private onStateChange: StateChangeCallback;
@@ -120,7 +241,7 @@ export class VocabularyPlayer {
     getVoices: () => VoiceState,
     onStateChange: StateChangeCallback,
     initialRepetitions = 3,
-    initialSpeed = 0.75,
+    initialSpeed = 1.0,
   ) {
     this.getVoices = getVoices;
     this.onStateChange = onStateChange;
@@ -292,23 +413,37 @@ export class VocabularyPlayer {
       return;
     }
 
-    const voices = this.getVoices();
+    // Always fetch fresh voices from the system right before speech
+    let voices = this.getVoices();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const liveVoices = window.speechSynthesis.getVoices();
+      if (!voices.english) voices.english = chooseVoice(liveVoices, "english");
+      if (!voices.arabic) voices.arabic = chooseVoice(liveVoices, "arabic");
+    }
+
     this.notifyState();
 
     let textToSpeak = "";
     let voiceToUse: SpeechSynthesisVoice | undefined;
-    let lang = "en-US";
+    let targetLang = "en-US";
 
     if (!this.isSpeakingArabic) {
       // Speak English word
       textToSpeak = currentItem.cleanWord;
       voiceToUse = voices.english;
-      lang = voiceToUse ? voiceToUse.lang : "en-US";
+      targetLang = voiceToUse ? voiceToUse.lang : "en-US";
     } else {
       // Speak Arabic meaning
       textToSpeak = currentItem.arabicMeaning;
-      voiceToUse = voices.arabic;
-      lang = voiceToUse ? voiceToUse.lang : "ar-EG";
+      // If meaning is unknown or fallback, check language
+      const isArabic = /[\u0600-\u06FF]/.test(textToSpeak);
+      if (isArabic) {
+        voiceToUse = voices.arabic;
+        targetLang = voiceToUse ? voiceToUse.lang : "ar-EG";
+      } else {
+        voiceToUse = voices.english;
+        targetLang = voiceToUse ? voiceToUse.lang : "en-US";
+      }
     }
 
     stopSpeech();
@@ -318,21 +453,23 @@ export class VocabularyPlayer {
       utterance.voice = voiceToUse;
       utterance.lang = voiceToUse.lang;
     } else {
-      utterance.lang = lang;
+      utterance.lang = targetLang;
     }
-    utterance.rate = this.speed;
 
-    // Retain reference on instance so WebKit does not GC it
+    utterance.rate = Math.max(0.6, Math.min(this.speed, 1.4));
+    utterance.pitch = 1.0;
+
+    // Retain reference on instance so WebKit does not garbage-collect it mid-speech
     this.activeUtterance = utterance;
 
     const handleEnd = () => {
       this.activeUtterance = null;
       if (this.status !== "playing") return;
 
-      // Small pause between utterances (220ms) for natural cadence & Safari stability
+      // Small natural pause between repetitions (240ms)
       this.timer = window.setTimeout(() => {
         this.advanceStep();
-      }, 220);
+      }, 240);
     };
 
     utterance.onend = handleEnd;

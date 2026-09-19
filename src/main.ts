@@ -4,8 +4,10 @@
  * Full application orchestrator:
  * - Photo capture & preprocessing
  * - Local Tesseract OCR with progress tracking
- * - Vocabulary extraction & Arabic dictionary matching
+ * - Vocabulary extraction & Arabic dictionary matching (800+ core words + lemmatization)
+ * - Custom user meaning editor saved to localStorage
  * - Speech queue with sequential repetition (English x 3 -> Arabic x 1)
+ * - Intelligent voice quality ranking & customizable voice dropdowns
  * - Interactive player with big touch controls
  * - Settings & Diagnostics drawer
  */
@@ -25,12 +27,17 @@ import {
   saveVocabMode,
   saveCachedWords,
   readCachedWords,
+  readPreferredVoiceUri,
+  savePreferredVoiceUri,
+  saveCustomMeaning,
 } from "./storage.js";
 import {
   getVoiceState,
   speak,
   stopSpeech,
   VocabularyPlayer,
+  setPreferredVoiceUri,
+  getAvailableVoicesForLanguage,
 } from "./speech.js";
 import { runOcr } from "./ocr.js";
 import { extractVocabulary } from "./vocabulary.js";
@@ -63,6 +70,13 @@ let theme: Theme = readTheme();
 let speed: number = readSpeed();
 let repetitions: number = readRepetitions();
 let vocabMode: VocabularyMode = readVocabMode();
+
+// Initialize saved preferred voices if any
+const savedEnVoice = readPreferredVoiceUri("english");
+if (savedEnVoice) setPreferredVoiceUri("english", savedEnVoice);
+
+const savedArVoice = readPreferredVoiceUri("arabic");
+if (savedArVoice) setPreferredVoiceUri("arabic", savedArVoice);
 
 let voices: VoiceState = {};
 let selectedImage: File | undefined;
@@ -116,6 +130,10 @@ const playerPrev = req<HTMLButtonElement>("player-prev");
 const playerNext = req<HTMLButtonElement>("player-next");
 const playerReplay = req<HTMLButtonElement>("player-replay");
 const playerStop = req<HTMLButtonElement>("player-stop");
+const editMeaningBtn = req<HTMLButtonElement>("edit-meaning-btn");
+
+const englishVoiceSelect = req<HTMLSelectElement>("english-voice-select");
+const arabicVoiceSelect = req<HTMLSelectElement>("arabic-voice-select");
 
 const englishSpeechBtn = req<HTMLButtonElement>("english-speech");
 const arabicSpeechBtn = req<HTMLButtonElement>("arabic-speech");
@@ -214,7 +232,7 @@ async function handleOcr(): Promise<void> {
       player.jumpToWord(idx);
     });
 
-    // Auto scroll down to the player card so mom sees the ready state immediately
+    // Auto scroll down to the player card
     const playerCard = document.getElementById("player-card");
     if (playerCard) {
       playerCard.scrollIntoView({ behavior: "smooth" });
@@ -231,6 +249,100 @@ async function handleOcr(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Edit Meaning Inline Handler
+// ---------------------------------------------------------------------------
+
+function handleEditMeaning(): void {
+  const state = player.getState();
+  if (wordsList.length === 0 || state.currentIndex >= wordsList.length) return;
+
+  const currentItem = wordsList[state.currentIndex];
+  if (!currentItem) return;
+
+  const defaultVal =
+    currentItem.arabicMeaning === tr("no_meaning")
+      ? ""
+      : currentItem.arabicMeaning;
+
+  const input = window.prompt(
+    `${tr("prompt_enter_meaning")} "${currentItem.word}":`,
+    defaultVal,
+  );
+
+  if (input !== null && input.trim()) {
+    const trimmed = input.trim();
+    saveCustomMeaning(currentItem.cleanWord, trimmed);
+    currentItem.arabicMeaning = trimmed;
+    currentItem.foundInDictionary = true;
+    saveCachedWords(wordsList);
+    renderAll();
+    // Immediate audio verification of the new Arabic meaning
+    speak(trimmed, voices.arabic);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Voice Selectors Population & Management
+// ---------------------------------------------------------------------------
+
+function populateVoiceSelectors(): void {
+  const enVoices = getAvailableVoicesForLanguage("english");
+  const arVoices = getAvailableVoicesForLanguage("arabic");
+
+  // English Dropdown
+  englishVoiceSelect.innerHTML = "";
+  if (enVoices.length === 0) {
+    englishVoiceSelect.innerHTML = `<option value="">${tr("no_english_voice")}</option>`;
+  } else {
+    for (const v of enVoices) {
+      const opt = document.createElement("option");
+      opt.value = v.voiceURI || v.name;
+      opt.textContent = `${v.name} (${v.lang})${v.localService ? " [Local]" : ""}`;
+      if (voices.english && (v.voiceURI === voices.english.voiceURI || v.name === voices.english.name)) {
+        opt.selected = true;
+      }
+      englishVoiceSelect.appendChild(opt);
+    }
+  }
+
+  // Arabic Dropdown
+  arabicVoiceSelect.innerHTML = "";
+  if (arVoices.length === 0) {
+    arabicVoiceSelect.innerHTML = `<option value="">${tr("no_arabic_voice")}</option>`;
+  } else {
+    for (const v of arVoices) {
+      const opt = document.createElement("option");
+      opt.value = v.voiceURI || v.name;
+      opt.textContent = `${v.name} (${v.lang})${v.localService ? " [Local]" : ""}`;
+      if (voices.arabic && (v.voiceURI === voices.arabic.voiceURI || v.name === voices.arabic.name)) {
+        opt.selected = true;
+      }
+      arabicVoiceSelect.appendChild(opt);
+    }
+  }
+}
+
+englishVoiceSelect.addEventListener("change", () => {
+  const uri = englishVoiceSelect.value;
+  if (!uri) return;
+  setPreferredVoiceUri("english", uri);
+  savePreferredVoiceUri("english", uri);
+  voices = getVoiceState();
+  renderVoiceStatus(locale, voices);
+  speak("choose", voices.english, speed); // Instant test of the chosen voice pronouncing "choose"
+});
+
+arabicVoiceSelect.addEventListener("change", () => {
+  const uri = arabicVoiceSelect.value;
+  if (!uri) return;
+  setPreferredVoiceUri("arabic", uri);
+  savePreferredVoiceUri("arabic", uri);
+  voices = getVoiceState();
+  renderVoiceStatus(locale, voices);
+  speak("يختار", voices.arabic, speed);
+});
+
+// ---------------------------------------------------------------------------
 // Settings Controls (Speed, Repetitions, Vocab Mode)
 // ---------------------------------------------------------------------------
 
@@ -239,8 +351,8 @@ function updateSpeed(newSpeed: number): void {
   saveSpeed(speed);
   player.setConfig(repetitions, speed);
   document.querySelectorAll("#speed-selector .pill-btn").forEach((btn) => {
-    const val = parseFloat((btn as HTMLElement).dataset["value"] || "0");
-    btn.classList.toggle("active", val === speed);
+    const val = parseFloat((btn as HTMLElement).dataset["value"] || "1.0");
+    btn.classList.toggle("active", Math.abs(val - speed) < 0.05);
   });
 }
 
@@ -249,7 +361,7 @@ function updateRepetitions(newReps: number): void {
   saveRepetitions(repetitions);
   player.setConfig(repetitions, speed);
   document.querySelectorAll("#reps-selector .pill-btn").forEach((btn) => {
-    const val = parseInt((btn as HTMLElement).dataset["value"] || "0", 10);
+    const val = parseInt((btn as HTMLElement).dataset["value"] || "3", 10);
     btn.classList.toggle("active", val === repetitions);
   });
 }
@@ -273,8 +385,10 @@ function updateVocabMode(newMode: VocabularyMode): void {
 function setupPillSelectors(): void {
   document.querySelectorAll("#speed-selector .pill-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const val = parseFloat((btn as HTMLElement).dataset["value"] || "0.75");
+      const val = parseFloat((btn as HTMLElement).dataset["value"] || "1.0");
       updateSpeed(val);
+      // Brief test of the new speed
+      speak("choose", voices.english, val);
     });
   });
 
@@ -330,6 +444,7 @@ cameraInput.addEventListener("change", () => handleFileInput(cameraInput));
 photoInput.addEventListener("change", () => handleFileInput(photoInput));
 sampleButton.addEventListener("click", () => void loadSampleTextbookImage());
 ocrButton.addEventListener("click", () => void handleOcr());
+editMeaningBtn.addEventListener("click", handleEditMeaning);
 
 // Player buttons
 playerPlayPause.addEventListener("click", () => {
@@ -353,6 +468,7 @@ langToggle.addEventListener("click", () => {
   locale = locale === "ar" ? "en" : "ar";
   saveLocale(locale);
   renderAll();
+  populateVoiceSelectors();
   void refreshOfflineDiagnostics(locale);
 });
 
@@ -371,15 +487,17 @@ settingsToggleBtn.addEventListener("click", () => {
 
 // Diagnostics buttons
 englishSpeechBtn.addEventListener("click", () =>
-  speak("This is an English speech test.", voices.english),
+  speak("Choose the correct answer for your test.", voices.english, speed),
 );
 arabicSpeechBtn.addEventListener("click", () =>
-  speak("هذا اختبار للصوت العربي.", voices.arabic),
+  speak("هذا اختبار للصوت العربي الواضح.", voices.arabic, speed),
 );
 stopSpeechBtn.addEventListener("click", stopSpeech);
-refreshBtn.addEventListener("click", () =>
-  void refreshOfflineDiagnostics(locale),
-);
+refreshBtn.addEventListener("click", () => {
+  voices = getVoiceState();
+  populateVoiceSelectors();
+  void refreshOfflineDiagnostics(locale);
+});
 
 window.addEventListener("beforeunload", () => {
   if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -393,6 +511,7 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.addEventListener("voiceschanged", () => {
     voices = getVoiceState();
     renderVoiceStatus(locale, voices);
+    populateVoiceSelectors();
   });
 }
 
@@ -412,5 +531,6 @@ renderAll();
 
 voices = getVoiceState();
 renderVoiceStatus(locale, voices);
+populateVoiceSelectors();
 
 void registerServiceWorker().then(() => refreshOfflineDiagnostics(locale));

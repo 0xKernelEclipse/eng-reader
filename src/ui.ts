@@ -64,6 +64,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     words_list_title: "Extracted Vocabulary ({count})",
     no_meaning: "Meaning not available",
     empty_list_notice: "No words yet. Take a photo of a textbook page to begin.",
+    edit_meaning: "Edit Meaning",
+    prompt_enter_meaning: "Enter Arabic meaning for",
 
     // Settings & Diagnostics Toggle
     settings_toggle: "Settings & Diagnostics",
@@ -73,6 +75,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     vocab_mode_label: "Vocabulary Extraction Mode:",
     mode_learning: "Important Lesson Words (Recommended)",
     mode_all: "All Extracted Words",
+    english_voice_select: "English Voice:",
+    arabic_voice_select: "Arabic Voice:",
     times: "times",
 
     // Diagnostics
@@ -173,6 +177,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     words_list_title: "قائمة الكلمات المستخرجة ({count})",
     no_meaning: "لم نجد معنى محفوظًا",
     empty_list_notice: "لا توجد كلمات بعد. التقط صورة لصفحة كتاب للبدء.",
+    edit_meaning: "تعديل المعنى",
+    prompt_enter_meaning: "أدخل المعنى العربي لكلمة",
 
     // Settings & Diagnostics Toggle
     settings_toggle: "الإعدادات والفحص",
@@ -182,6 +188,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     vocab_mode_label: "نوع استخراج الكلمات:",
     mode_learning: "كلمات الدروس المهمة (موصى به)",
     mode_all: "جميع الكلمات المستخرجة",
+    english_voice_select: "صوت الإنجليزية:",
+    arabic_voice_select: "صوت العربية:",
     times: "مرات",
 
     // Diagnostics

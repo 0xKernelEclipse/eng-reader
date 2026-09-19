@@ -18,7 +18,8 @@ Designed specifically for an **iPhone 7 Plus running iOS 15.8.8 Safari**, but wo
    - Tesseract.js runs entirely inside a Web Worker on the phone. Your photos are never sent to any server.
 3. **Vocabulary Extraction & Dictionary Lookup:**
    - Normalizes whitespace, repairs common OCR character noise (e.g. `1` inside words $\to$ `l`), removes duplicates in page order, and filters grammar stopwords in Learning Mode.
-   - Matches words against a curated offline English $\to$ Arabic school dictionary with smart morphology lemmatization (plurals, `-ed`, `-ing`, irregular verbs).
+   - Matches words against a curated offline English $\to$ Arabic school dictionary (880+ roots covering thousands of inflected forms) with smart morphology lemmatization (plurals, `-ed`, `-ing`, irregular verbs).
+   - Missing a word? Tap **"Edit Meaning"** on any word card to add or update your own Arabic translation instantly, saved locally to your device.
 4. **Automated Spoken Queue:**
    - Tap **"Start Reading"** and the phone speaks:
      - English word (repeat 1)
@@ -26,6 +27,8 @@ Designed specifically for an **iPhone 7 Plus running iOS 15.8.8 Safari**, but wo
      - English word (repeat 3)
      - Arabic meaning (1x)
      - ...then automatically moves to the next word!
+   - Natural 1.0x playback rate (no robotic timestretching or vowel distortion) with intelligent voice scoring prioritizing natural neural voices (Edge/Chrome/Apple Siri).
+   - Manual English and Arabic voice picker dropdowns inside **Settings & Diagnostics** to pick your preferred synthesizer.
 5. **Interactive Controls & Word List:**
    - Large touch controls: Play / Pause, Next, Previous, Replay word, and Stop.
    - Tap any word in the list to immediately jump to it and listen.

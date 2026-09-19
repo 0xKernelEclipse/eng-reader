@@ -170,6 +170,13 @@
         <div class="word-stage">
           <div class="word-meta">
             <span id="player-counter" class="word-counter"></span>
+            <button id="edit-meaning-btn" class="edit-meaning-btn" type="button" aria-label="Edit Arabic meaning">
+              <svg class="icon icon-edit" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              </svg>
+              <span data-i18n="edit_meaning">Edit Meaning</span>
+            </button>
           </div>
 
           <div id="player-current-word" class="word-main-text">—</div>
@@ -278,12 +285,24 @@
           <div class="setting-group">
             <label class="setting-label" data-i18n="speed_label">Voice Speed:</label>
             <div id="speed-selector" class="pill-group" role="radiogroup">
-              <button type="button" class="pill-btn" data-value="0.6">0.6x</button>
-              <button type="button" class="pill-btn active" data-value="0.75">0.75x</button>
+              <button type="button" class="pill-btn" data-value="0.8">0.8x</button>
               <button type="button" class="pill-btn" data-value="0.9">0.9x</button>
-              <button type="button" class="pill-btn" data-value="1.0">1.0x</button>
-              <button type="button" class="pill-btn" data-value="1.15">1.15x</button>
+              <button type="button" class="pill-btn active" data-value="1.0">1.0x (Normal)</button>
+              <button type="button" class="pill-btn" data-value="1.1">1.1x</button>
+              <button type="button" class="pill-btn" data-value="1.25">1.25x</button>
             </div>
+          </div>
+
+          <!-- English Voice Dropdown -->
+          <div class="setting-group">
+            <label class="setting-label" for="english-voice-select" data-i18n="english_voice_select">English Voice:</label>
+            <select id="english-voice-select" class="select-ctrl"></select>
+          </div>
+
+          <!-- Arabic Voice Dropdown -->
+          <div class="setting-group">
+            <label class="setting-label" for="arabic-voice-select" data-i18n="arabic_voice_select">Arabic Voice:</label>
+            <select id="arabic-voice-select" class="select-ctrl"></select>
           </div>
 
           <!-- Repetitions Count -->
