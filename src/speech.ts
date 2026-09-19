@@ -231,7 +231,7 @@ export class VocabularyPlayer {
   private isSpeakingArabic = false;
   private status: PlaybackStatus = "idle";
   private repetitions = 3;
-  private speed = 1.0; // Default to 1.0 (natural normal human rate)
+  private speed = 0.9; // Slightly under natural rate — clear, no distortion
   private activeUtterance: SpeechSynthesisUtterance | null = null;
   private timer: number | null = null;
   private onStateChange: StateChangeCallback;
@@ -241,7 +241,7 @@ export class VocabularyPlayer {
     getVoices: () => VoiceState,
     onStateChange: StateChangeCallback,
     initialRepetitions = 3,
-    initialSpeed = 1.0,
+    initialSpeed = 0.9,
   ) {
     this.getVoices = getVoices;
     this.onStateChange = onStateChange;
@@ -466,10 +466,10 @@ export class VocabularyPlayer {
       this.activeUtterance = null;
       if (this.status !== "playing") return;
 
-      // Small natural pause between repetitions (240ms)
+      // Pause between repetitions (850ms) so each repetition is distinct and clear
       this.timer = window.setTimeout(() => {
         this.advanceStep();
-      }, 240);
+      }, 850);
     };
 
     utterance.onend = handleEnd;
