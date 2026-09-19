@@ -31,7 +31,7 @@ function safeSet(key: string, value: string): void {
 
 export function readLocale(): Locale {
   const stored = safeGet(LOCALE_KEY);
-  return stored === "en" ? "en" : "ar";
+  return stored === "ar" ? "ar" : "en";
 }
 
 export function saveLocale(locale: Locale): void {

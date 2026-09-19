@@ -158,9 +158,9 @@ async function loadSampleTextbookImage(): Promise<void> {
     const file = new File([blob], "sample-textbook-page.svg", {
       type: "image/svg+xml",
     });
-    setImageFile(file, "الصفحة التدريبية (Our Environment)");
+    setImageFile(file, "Sample Page (Our Environment)");
   } catch (err) {
-    showStatus(imageStatus, "تعذّر تحميل الصفحة التدريبية.", "error");
+    showStatus(imageStatus, "Could not load sample textbook page.", "error");
   }
 }
 
@@ -210,7 +210,7 @@ async function handleOcr(): Promise<void> {
 
     // Load into speech player and render word list
     player.load(wordsList);
-    renderWordList(wordsList, 0, (idx) => {
+    renderWordList(wordsList, 0, locale, (idx) => {
       player.jumpToWord(idx);
     });
 
@@ -266,7 +266,7 @@ function updateVocabMode(newMode: VocabularyMode): void {
   if (ocrResult.value.trim()) {
     wordsList = extractVocabulary(ocrResult.value, vocabMode, tr("no_meaning"));
     player.load(wordsList);
-    renderWordList(wordsList, 0, (idx) => player.jumpToWord(idx));
+    renderWordList(wordsList, 0, locale, (idx) => player.jumpToWord(idx));
   }
 }
 
@@ -302,7 +302,7 @@ function renderAll(): void {
   renderLocale(locale);
   renderVoiceStatus(locale, voices);
   renderPlayerUI(player.getState(), wordsList[player.getState().currentIndex], locale);
-  renderWordList(wordsList, player.getState().currentIndex, (idx) => {
+  renderWordList(wordsList, player.getState().currentIndex, locale, (idx) => {
     player.jumpToWord(idx);
   });
 }

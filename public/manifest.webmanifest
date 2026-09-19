@@ -1,14 +1,14 @@
 {
-  "name": "قارئ الكلمات الإنجليزية",
-  "short_name": "قارئ الإنجليزية",
-  "description": "تصويري صفحة إنجليزية واسمعي الكلمات مع معانيها بالعربية",
+  "name": "English Vocabulary Reader",
+  "short_name": "EngReader",
+  "description": "Photograph an English textbook page, extract vocabulary words, and listen to them with Arabic meanings offline",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#090f1d",
   "theme_color": "#090f1d",
-  "lang": "ar",
-  "dir": "rtl",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icons/icon-192.png",

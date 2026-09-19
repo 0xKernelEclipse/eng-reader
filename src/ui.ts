@@ -13,112 +13,6 @@ import { OCR_ASSET_PATHS } from "./ocr.js";
 // ---------------------------------------------------------------------------
 
 export const translations: Record<Locale, Record<string, string>> = {
-  ar: {
-    app_name: "قارئ الإنجليزية",
-    compatibility_label: "قارئ المفردات التعليمي",
-    headline: "صوّري الصفحة واسمعي الكلمات",
-    intro: "صوّري أي صفحة إنجليزية، وسيقوم التطبيق بقراءة الكلمات وتكرارها 3 مرات بالإنجليزية ثم معناها بالعربية.",
-
-    // Steps
-    step1_title: "1. اختاري صورة الصفحة",
-    step1_copy: "صوّري صفحة من كتاب مدرسي أو اختاري صورة محفوظة.",
-    take_photo: "صوّري الصفحة",
-    choose_photo: "اختاري صورة",
-    try_sample: "جرّبي صفحة تدريبية",
-    image_idle: "لم يتم اختيار صورة بعد.",
-    image_selected: "تم اختيار الصورة بنجاح: {name}",
-    camera_photo: "صورة الكاميرا",
-    sample_loaded: "تم تحميل الصفحة التدريبية النموذجية.",
-
-    // OCR & Vocabulary
-    step2_title: "2. استخراج الكلمات",
-    step2_copy: "قراءة النص محليًا داخل الهاتف دون اتصال بالإنترنت.",
-    start_ocr: "ابدئي قراءة واستخراج الكلمات",
-    ocr_idle: "اختاري صورة أولاً.",
-    preparing_image: "جارٍ تجهيز وتحسين وضوح الصورة…",
-    loading_ocr: "جارٍ تشغيل محرك القراءة المحلي…",
-    ocr_progress: "جارٍ القراءة: {percent}٪",
-    ocr_failed: "لم نتمكن من قراءة الصورة. جرّبي التقاط صورة أكثر وضوحًا وإضاءة.",
-    ocr_empty: "اكتمل الفحص، لكن لم يُعثر على كلمات إنجليزية واضحة.",
-    words_found: "تم العثور على {count} كلمة جاهزة للاستماع!",
-
-    // Player
-    step3_title: "3. الاستماع والتكرار",
-    step3_copy: "ينطق الكلمة الإنجليزية 3 مرات ثم المعنى بالعربية تلقائيًا.",
-    current_word_label: "الكلمة الحالية",
-    word_counter: "الكلمة {current} من {total}",
-    play: "ابدأ القراءة",
-    resume: "استئناف",
-    pause: "إيقاف مؤقت",
-    stop: "إيقاف",
-    next_word: "التالية",
-    prev_word: "السابقة",
-    replay_word: "إعادة الكلمة",
-    step_en: "إنجليزية {num}",
-    step_ar: "العربية",
-    player_idle: "اضغطي «ابدأ القراءة» لبدء نطق الكلمات.",
-    player_completed: "أحسنتِ! تم الانتهاء من قراءة جميع كلمات الصفحة.",
-    tap_to_listen: "اضغطي على أي كلمة للاستماع إليها مباشرة",
-
-    // Word List
-    words_list_title: "قائمة الكلمات المستخرجة ({count})",
-    no_meaning: "لم نجد معنى محفوظًا",
-
-    // Settings & Diagnostics Toggle
-    settings_toggle: "الإعدادات والفحص",
-    settings_title: "إعدادات القراءة",
-    speed_label: "سرعة الصوت:",
-    repetitions_label: "عدد مرات تكرار الكلمة:",
-    vocab_mode_label: "نوع استخراج الكلمات:",
-    mode_learning: "كلمات الدروس المهمة (موصى به)",
-    mode_all: "جميع الكلمات المستخرجة",
-    times: "مرات",
-
-    // Diagnostics
-    diagnostics_title: "فحص الجهاز والتوافق مع الهاتف",
-    test_english: "اختبار الإنجليزية",
-    test_arabic: "اختبار العربية",
-    stop_audio: "إيقاف الصوت",
-    english_voice: "صوت الإنجليزية",
-    arabic_voice: "صوت العربية",
-    offline_title: "حالة العمل دون إنترنت",
-    service_worker: "Service Worker",
-    browser: "المتصفح",
-    indexeddb: "IndexedDB",
-    ocr_version: "إصدار محرك القراءة",
-    ocr_worker: "ملف Web Worker",
-    ocr_core: "نواة WebAssembly",
-    ocr_language: "نموذج اللغة الإنجليزية",
-    refresh: "تحديث الفحص",
-    raw_ocr_label: "النص الخام الذي قرأه المحرك",
-
-    // Status Messages
-    switch_light: "تفعيل المظهر الفاتح",
-    switch_dark: "تفعيل المظهر الداكن",
-    no_english_voice: "لا يتوفر صوت إنجليزي على هذا الجهاز.",
-    no_arabic_voice: "لا يتوفر صوت عربي على هذا الجهاز.",
-    local: "محلي ويعمل دون إنترنت",
-    online_voice: "قد يحتاج إنترنت",
-    speech_unavailable: "الصوت غير مدعوم في هذا المتصفح.",
-    image_only: "يرجى اختيار ملف صورة فقط.",
-    storage_unavailable: "التخزين دون إنترنت غير متاح في هذا المتصفح.",
-    unavailable: "غير متاح",
-    sw_ready: "جاهز ومفعّل",
-    sw_installing: "قيد التثبيت — يُرجى إعادة فتح الصفحة.",
-    available: "متاح",
-    cached: "مخزّن محليًا ✓",
-    not_cached: "غير مخزّن",
-    offline_ready: "جاهز للعمل دون إنترنت: تم تخزين جميع الملفات المطلوبة بنجاح.",
-    offline_wait: "التخزين لم يكتمل بعد. اتركي الصفحة مفتوحة مع الاتصال بالإنترنت ثم حدّثي الفحص.",
-    sw_failed: "تعذّر تسجيل Service Worker.",
-
-    // How-to guide
-    how_to_title: "طريقة الاستخدام والتثبيت على iPhone",
-    how_to_1: "افتحي الموقع في Safari أثناء الاتصال بالإنترنت وانتظري حتى تكتمل الملفات.",
-    how_to_2: "اضغطي زر المشاركة (Share) في Safari واختاري «إضافة إلى الشاشة الرئيسية» (Add to Home Screen).",
-    how_to_3: "أغلقي المتصفح، ثم افتحي التطبيق من أيقونة الشاشة الرئيسية واستخدميه بحرية حتى دون إنترنت!",
-  },
-
   en: {
     app_name: "English Reader",
     compatibility_label: "Vocabulary Learning Reader",
@@ -169,6 +63,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Word List
     words_list_title: "Extracted Vocabulary ({count})",
     no_meaning: "Meaning not available",
+    empty_list_notice: "No words yet. Take a photo of a textbook page to begin.",
 
     // Settings & Diagnostics Toggle
     settings_toggle: "Settings & Diagnostics",
@@ -201,6 +96,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Status Messages
     switch_light: "Use Light Theme",
     switch_dark: "Use Dark Theme",
+    switch_ar: "Switch to Arabic",
+    switch_en: "Switch to English",
     no_english_voice: "No English voice is available on this device.",
     no_arabic_voice: "No Arabic voice is available on this device.",
     local: "Local (works offline)",
@@ -223,6 +120,115 @@ export const translations: Record<Locale, Record<string, string>> = {
     how_to_1: "Open the site in Safari while online and wait until offline files are cached.",
     how_to_2: "Tap the Safari Share button and choose 'Add to Home Screen'.",
     how_to_3: "Close Safari, open the app from your home screen, and use it freely even offline!",
+  },
+
+  ar: {
+    app_name: "قارئ الإنجليزية",
+    compatibility_label: "قارئ المفردات التعليمي",
+    headline: "التقط صورة واسمع الكلمات",
+    intro: "التقط صورة لأي صفحة إنجليزية، وسيقوم التطبيق بقراءة الكلمات وتكرارها 3 مرات بالإنجليزية ثم معناها بالعربية.",
+
+    // Steps
+    step1_title: "1. اختر صورة الصفحة",
+    step1_copy: "التقط صورة لصفحة كتاب أو اختر صورة محفوظة.",
+    take_photo: "التقط صورة",
+    choose_photo: "اختر صورة",
+    try_sample: "صفحة تدريبية",
+    image_idle: "لم يتم اختيار صورة بعد.",
+    image_selected: "تم اختيار الصورة بنجاح: {name}",
+    camera_photo: "صورة الكاميرا",
+    sample_loaded: "تم تحميل الصفحة التدريبية النموذجية.",
+
+    // OCR & Vocabulary
+    step2_title: "2. استخراج الكلمات",
+    step2_copy: "قراءة النص محليًا داخل الهاتف دون اتصال بالإنترنت.",
+    start_ocr: "ابدأ قراءة واستخراج الكلمات",
+    ocr_idle: "اختر صورة أولاً.",
+    preparing_image: "جارٍ تجهيز وتحسين وضوح الصورة…",
+    loading_ocr: "جارٍ تشغيل محرك القراءة المحلي…",
+    ocr_progress: "جارٍ القراءة: {percent}٪",
+    ocr_failed: "لم نتمكن من قراءة الصورة. جرّب التقاط صورة أكثر وضوحًا وإضاءة.",
+    ocr_empty: "اكتمل الفحص، لكن لم يُعثر على كلمات إنجليزية واضحة.",
+    words_found: "تم العثور على {count} كلمة جاهزة للاستماع!",
+
+    // Player
+    step3_title: "3. الاستماع والتكرار",
+    step3_copy: "ينطق الكلمة الإنجليزية 3 مرات ثم المعنى بالعربية تلقائيًا.",
+    current_word_label: "الكلمة الحالية",
+    word_counter: "الكلمة {current} من {total}",
+    play: "ابدأ القراءة",
+    resume: "استئناف",
+    pause: "إيقاف مؤقت",
+    stop: "إيقاف",
+    next_word: "التالية",
+    prev_word: "السابقة",
+    replay_word: "إعادة الكلمة",
+    step_en: "إنجليزية {num}",
+    step_ar: "العربية",
+    player_idle: "اضغط «ابدأ القراءة» لبدء نطق الكلمات.",
+    player_completed: "تم الانتهاء من قراءة جميع كلمات الصفحة.",
+    tap_to_listen: "اضغط على أي كلمة للاستماع إليها مباشرة",
+
+    // Word List
+    words_list_title: "قائمة الكلمات المستخرجة ({count})",
+    no_meaning: "لم نجد معنى محفوظًا",
+    empty_list_notice: "لا توجد كلمات بعد. التقط صورة لصفحة كتاب للبدء.",
+
+    // Settings & Diagnostics Toggle
+    settings_toggle: "الإعدادات والفحص",
+    settings_title: "إعدادات القراءة",
+    speed_label: "سرعة الصوت:",
+    repetitions_label: "عدد مرات تكرار الكلمة:",
+    vocab_mode_label: "نوع استخراج الكلمات:",
+    mode_learning: "كلمات الدروس المهمة (موصى به)",
+    mode_all: "جميع الكلمات المستخرجة",
+    times: "مرات",
+
+    // Diagnostics
+    diagnostics_title: "فحص الجهاز والتوافق مع الهاتف",
+    test_english: "اختبار الإنجليزية",
+    test_arabic: "اختبار العربية",
+    stop_audio: "إيقاف الصوت",
+    english_voice: "صوت الإنجليزية",
+    arabic_voice: "صوت العربية",
+    offline_title: "حالة العمل دون إنترنت",
+    service_worker: "Service Worker",
+    browser: "المتصفح",
+    indexeddb: "IndexedDB",
+    ocr_version: "إصدار محرك القراءة",
+    ocr_worker: "ملف Web Worker",
+    ocr_core: "نواة WebAssembly",
+    ocr_language: "نموذج اللغة الإنجليزية",
+    refresh: "تحديث الفحص",
+    raw_ocr_label: "النص الخام الذي قرأه المحرك",
+
+    // Status Messages
+    switch_light: "تفعيل المظهر الفاتح",
+    switch_dark: "تفعيل المظهر الداكن",
+    switch_ar: "التبديل إلى العربية",
+    switch_en: "Switch to English",
+    no_english_voice: "لا يتوفر صوت إنجليزي على هذا الجهاز.",
+    no_arabic_voice: "لا يتوفر صوت عربي على هذا الجهاز.",
+    local: "محلي ويعمل دون إنترنت",
+    online_voice: "قد يحتاج إنترنت",
+    speech_unavailable: "الصوت غير مدعوم في هذا المتصفح.",
+    image_only: "يرجى اختيار ملف صورة فقط.",
+    storage_unavailable: "التخزين دون إنترنت غير متاح في هذا المتصفح.",
+    unavailable: "غير متاح",
+    sw_ready: "جاهز ومفعّل",
+    sw_installing: "قيد التثبيت — يُرجى إعادة فتح الصفحة.",
+    available: "متاح",
+    cached: "مخزّن محليًا ✓",
+    not_cached: "غير مخزّن",
+    offline_ready: "جاهز للعمل دون إنترنت: تم تخزين جميع الملفات المطلوبة بنجاح.",
+    offline_wait: "التخزين لم يكتمل بعد. اترك الصفحة مفتوحة مع الاتصال بالإنترنت ثم حدّث الفحص.",
+    sw_failed: "تعذّر تسجيل Service Worker.",
+
+    // How-to guide
+    how_to_title: "طريقة الاستخدام والتثبيت على iPhone",
+    how_to_1: "افتح الموقع في Safari أثناء الاتصال بالإنترنت وانتظر حتى تكتمل الملفات.",
+    how_to_2: "اضغط زر المشاركة (Share) في Safari واختر «إضافة إلى الشاشة الرئيسية» (Add to Home Screen).",
+    how_to_3: "أغلق المتصفح، ثم افتح التطبيق من أيقونة الشاشة الرئيسية واستخدمه بحرية حتى دون إنترنت!",
   },
 };
 
@@ -251,7 +257,7 @@ export function t(
   key: string,
   vars: Record<string, string | number> = {},
 ): string {
-  const template = translations[locale][key] ?? key;
+  const template = translations[locale][key] ?? translations["en"][key] ?? key;
   return interpolate(template, vars);
 }
 
@@ -294,10 +300,10 @@ export function renderLocale(locale: Locale): void {
     });
 
   const langBtn = req<HTMLButtonElement>("language-toggle");
-  langBtn.textContent = locale === "ar" ? "EN" : "ع";
+  langBtn.textContent = locale === "ar" ? "EN" : "عربي";
   langBtn.setAttribute(
     "aria-label",
-    locale === "ar" ? "Switch to English" : "التبديل إلى العربية",
+    t(locale, locale === "ar" ? "switch_en" : "switch_ar"),
   );
 }
 
@@ -390,12 +396,12 @@ export function renderPlayerUI(
       (state.status === "playing" && state.currentRepetition > r) ||
       state.isSpeakingArabic;
     const cls = isCurrent ? "step-pill active" : isDone ? "step-pill done" : "step-pill";
-    stepsHtml += `<span class="${cls}">EN ${r}</span>`;
+    stepsHtml += `<span class="${cls}">${t(locale, "step_en", { num: r })}</span>`;
   }
 
   const arCurrent = state.status === "playing" && state.isSpeakingArabic;
   const arCls = arCurrent ? "step-pill active arabic-pill" : "step-pill arabic-pill";
-  stepsHtml += `<span class="${arCls}">عربي</span>`;
+  stepsHtml += `<span class="${arCls}">${t(locale, "step_ar")}</span>`;
 
   stepsContainer.innerHTML = stepsHtml;
 
@@ -417,6 +423,7 @@ export function renderPlayerUI(
 export function renderWordList(
   words: VocabularyItem[],
   currentIndex: number,
+  locale: Locale,
   onSelectWord: (index: number) => void,
 ): void {
   const container = document.getElementById("words-list-container");
@@ -428,7 +435,7 @@ export function renderWordList(
   }
 
   if (words.length === 0) {
-    container.innerHTML = `<p class="empty-list-notice">لا توجد كلمات بعد. صوّري صفحة للبدء.</p>`;
+    container.innerHTML = `<p class="empty-list-notice">${t(locale, "empty_list_notice")}</p>`;
     return;
   }
 
