@@ -30,6 +30,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     camera_photo: "Camera Photo",
     sample_loaded: "Sample textbook page loaded.",
 
+    // Crop
+    crop_title: "Crop Your Image",
+    crop_copy: "Select only the part you want to read. Drag rectangle or tap points for polygon.",
+
     // OCR & Vocabulary
     step2_title: "2. Extract Vocabulary",
     step2_copy: "Reads text completely on-device without internet access.",
@@ -142,6 +146,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     image_selected: "تم اختيار الصورة بنجاح: {name}",
     camera_photo: "صورة الكاميرا",
     sample_loaded: "تم تحميل الصفحة التدريبية النموذجية.",
+
+    // Crop
+    crop_title: "قص الصورة",
+    crop_copy: "حدد فقط الجزء الذي تريد قراءته. اسحب مستطيلاً أو انقر نقاطاً للمضلع.",
 
     // OCR & Vocabulary
     step2_title: "2. استخراج الكلمات",
@@ -433,6 +441,7 @@ export function renderWordList(
   currentIndex: number,
   locale: Locale,
   onSelectWord: (index: number) => void,
+  onToggleCheckbox?: (index: number, checked: boolean) => void,
 ): void {
   const container = document.getElementById("words-list-container");
   const countBadge = document.getElementById("words-count-badge");
@@ -450,26 +459,45 @@ export function renderWordList(
   container.innerHTML = words
     .map(
       (item, idx) => `
-    <button type="button" class="vocab-row ${idx === currentIndex ? "active-row" : ""}" data-index="${idx}">
-      <span class="vocab-index">${idx + 1}</span>
-      <div class="vocab-details">
-        <span class="vocab-en">${item.word}</span>
-        <span class="vocab-ar">${item.arabicMeaning}</span>
-      </div>
-      <span class="vocab-play-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-      </span>
-    </button>
+    <div class="vocab-row ${idx === currentIndex ? "active-row" : ""} ${item.selected ? "" : "is-unselected"}" data-index="${idx}">
+      <label class="vocab-check-wrap" title="Include in repeating queue">
+        <input type="checkbox" class="vocab-checkbox" data-index="${idx}" ${item.selected ? "checked" : ""} />
+        <span class="vocab-custom-check" aria-hidden="true"></span>
+      </label>
+      <button type="button" class="vocab-row-main" data-index="${idx}">
+        <span class="vocab-index">${idx + 1}</span>
+        <div class="vocab-details">
+          <span class="vocab-en">${item.word}${item.isCustom ? ' <span class="custom-word-pill">Added</span>' : ""}</span>
+          <span class="vocab-ar">${item.arabicMeaning}</span>
+        </div>
+        <span class="vocab-play-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+        </span>
+      </button>
+    </div>
   `,
     )
     .join("");
 
-  container.querySelectorAll<HTMLButtonElement>(".vocab-row").forEach((btn) => {
+  container.querySelectorAll<HTMLButtonElement>(".vocab-row-main").forEach((btn) => {
     btn.addEventListener("click", () => {
       const idx = parseInt(btn.dataset["index"] || "0", 10);
       onSelectWord(idx);
+    });
+  });
+
+  container.querySelectorAll<HTMLInputElement>(".vocab-checkbox").forEach((cb) => {
+    cb.addEventListener("change", (e) => {
+      e.stopPropagation();
+      const idx = parseInt(cb.dataset["index"] || "0", 10);
+      const isChecked = cb.checked;
+      const row = cb.closest(".vocab-row");
+      if (row) {
+        row.classList.toggle("is-unselected", !isChecked);
+      }
+      onToggleCheckbox?.(idx, isChecked);
     });
   });
 }

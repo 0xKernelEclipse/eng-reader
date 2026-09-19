@@ -10,26 +10,30 @@ Designed specifically for an **iPhone 7 Plus running iOS 15.8.8 Safari**, but wo
 
 ## What It Does (Core Flow)
 
-1. **Snap or Pick a Photo:**
+1. **Snap or Pick a Photo & Interactive Crop:**
    - Tap **"Take a Photo"** (`capture="environment"`) to launch the camera directly.
    - Or tap **"Choose a Photo"** to pick from your gallery.
-   - Or tap **"Try Sample Page"** to instantly load a built-in textbook sample without needing a physical book.
+   - Or tap **"Try Sample Page"** to instantly load a built-in textbook sample.
+   - **Interactive Crop Tool:** Select only the section of the page you need before scanning! Supports standard **Rectangle** drag-to-crop and **Polygon (Tap Points)** lasso mode to trace irregular paragraphs.
 2. **Local OCR (Zero Cloud):**
    - Tesseract.js runs entirely inside a Web Worker on the phone. Your photos are never sent to any server.
-3. **Vocabulary Extraction & Dictionary Lookup:**
+3. **87,000+ Word Automated Offline Dictionary:**
    - Normalizes whitespace, repairs common OCR character noise (e.g. `1` inside words $\to$ `l`), removes duplicates in page order, and filters grammar stopwords in Learning Mode.
-   - Matches words against a curated offline English $\to$ Arabic school dictionary (880+ roots covering thousands of inflected forms) with smart morphology lemmatization (plurals, `-ed`, `-ing`, irregular verbs).
-   - Missing a word? Tap **"Edit Meaning"** on any word card to add or update your own Arabic translation instantly, saved locally to your device.
-4. **Automated Spoken Queue:**
+   - Automatically cross-references an 87,000+ word offline English $\to$ Arabic dictionary built from ArabEyes and Google's 10k school-level frequency word lists.
+   - Missing a word? Tap **"Edit Meaning"** on any word card to update the translation, or use the **"Add Word Manually"** drawer to insert custom words into your queue anytime.
+4. **Selective Repeating (Word Checkboxes):**
+   - Each word has a checkbox: check only the words you want to practice.
+   - Use the **"Select All"** and **"Deselect All"** quick toolbar to curate your repetition session in seconds.
+5. **Automated Spoken Queue:**
    - Tap **"Start Reading"** and the phone speaks:
      - English word (repeat 1)
      - English word (repeat 2)
      - English word (repeat 3)
      - Arabic meaning (1x)
-     - ...then automatically moves to the next word!
-   - Natural 1.0x playback rate (no robotic timestretching or vowel distortion) with intelligent voice scoring prioritizing natural neural voices (Edge/Chrome/Apple Siri).
-   - Manual English and Arabic voice picker dropdowns inside **Settings & Diagnostics** to pick your preferred synthesizer.
-5. **Interactive Controls & Word List:**
+     - ...then automatically moves to the next selected word!
+   - Natural 0.9x playback rate with 850ms spacing between repetitions and intelligent voice scoring.
+   - Manual English and Arabic voice picker dropdowns inside **Settings & Diagnostics**.
+6. **Interactive Controls & Word List:**
    - Large touch controls: Play / Pause, Next, Previous, Replay word, and Stop.
    - Tap any word in the list to immediately jump to it and listen.
 

@@ -460,6 +460,109 @@ dd[data-kind="error"] {
 }
 
 /* ============================================================
+   Crop UI Section
+   ============================================================ */
+.crop-section {
+  border-color: var(--accent-line);
+}
+
+.crop-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.crop-mode-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.crop-mode-btn {
+  background: var(--panel-soft);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  transition: all .15s ease;
+}
+
+.crop-mode-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.crop-hint {
+  color: var(--muted);
+  font-size: .84rem;
+  margin: 0;
+  text-align: center;
+}
+
+.crop-canvas-wrapper {
+  align-items: center;
+  background: #020617;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+  touch-action: none;
+  user-select: none;
+}
+
+.crop-canvas {
+  border-radius: 8px;
+  cursor: crosshair;
+  display: block;
+  max-width: 100%;
+  touch-action: none;
+}
+
+.crop-action-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.crop-action-btn {
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 700;
+  min-height: 48px;
+  padding: 8px 18px;
+  transition: all .15s ease;
+}
+
+.crop-action-btn.primary {
+  background: var(--accent);
+  border: none;
+  color: var(--accent-ink);
+}
+
+.crop-action-btn.primary:hover {
+  filter: brightness(1.1);
+}
+
+.crop-action-btn.secondary {
+  background: var(--panel-soft);
+  border: 1.5px solid var(--line);
+  color: var(--text);
+}
+
+.crop-action-btn.secondary:hover {
+  border-color: var(--accent);
+}
+
+/* ============================================================
    Player Card & Word Stage
    ============================================================ */
 .player-card {
@@ -635,6 +738,43 @@ dd[data-kind="error"] {
   text-align: center;
 }
 
+/* Selection Toolbar */
+.word-selection-toolbar {
+  align-items: center;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 14px 0 6px;
+  padding: 8px 12px;
+}
+
+.sel-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  transition: all .15s ease;
+}
+
+.sel-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sel-count-label {
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
 .vocab-row {
   align-items: center;
   background: var(--bg);
@@ -642,22 +782,62 @@ dd[data-kind="error"] {
   border-radius: 14px;
   color: var(--text);
   display: flex;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 8px 14px;
   text-align: start;
-  transition: border-color .15s, background .15s, transform .15s;
+  transition: border-color .15s, background .15s, opacity .2s;
   width: 100%;
 }
 
 .vocab-row:hover {
   border-color: var(--accent-line);
-  transform: translateX(-2px);
 }
 
 .vocab-row.active-row {
   background: var(--panel-active);
   border-color: var(--accent);
   box-shadow: 0 0 15px #3ecfbf22;
+}
+
+.vocab-row.is-unselected {
+  opacity: 0.45;
+}
+
+.vocab-row.is-unselected .vocab-en {
+  text-decoration: line-through;
+  text-decoration-color: var(--muted);
+}
+
+/* Checkbox */
+.vocab-check-wrap {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 4px;
+  user-select: none;
+}
+
+.vocab-checkbox {
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 20px;
+  margin: 0;
+  width: 20px;
+}
+
+.vocab-row-main {
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  font: inherit;
+  gap: 12px;
+  padding: 4px 0;
+  text-align: start;
 }
 
 .vocab-index {
@@ -682,9 +862,23 @@ dd[data-kind="error"] {
 }
 
 .vocab-en {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
   font-size: 1.05rem;
   font-weight: 800;
+  gap: 6px;
   letter-spacing: .02em;
+}
+
+.custom-word-pill {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  text-transform: uppercase;
 }
 
 .vocab-ar {
@@ -699,6 +893,63 @@ dd[data-kind="error"] {
 
 .vocab-row.active-row .vocab-play-icon {
   color: var(--accent);
+}
+
+/* Add Word Panel */
+.add-word-panel {
+  border-top: 1px dashed var(--line);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.add-word-summary {
+  align-items: center;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  font-size: .88rem;
+  font-weight: 700;
+  gap: 8px;
+  user-select: none;
+}
+
+.add-word-body {
+  margin-top: 12px;
+}
+
+.add-word-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 10px;
+}
+
+.add-word-input {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: .9rem;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.add-word-input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.add-word-submit {
+  min-height: 44px;
+  width: 100%;
+}
+
+.add-word-status {
+  color: var(--success);
+  font-size: .82rem;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
 }
 
 /* ============================================================

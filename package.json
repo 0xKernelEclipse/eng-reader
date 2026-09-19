@@ -6,6 +6,7 @@
   "scripts": {
     "gen-icons":   "node scripts/gen-icons.mjs",
     "prepare-ocr": "node scripts/prepare-ocr.mjs",
+    "build-dict":  "node scripts/build-dictionary.mjs",
     "dev":         "npm run gen-icons && npm run prepare-ocr && vite --host 0.0.0.0",
     "typecheck":   "tsc --noEmit",
     "build":       "npm run gen-icons && npm run prepare-ocr && tsc --noEmit && vite build && node scripts/build-service-worker.mjs",

@@ -128,6 +128,18 @@
         <img id="preview" class="preview" alt="Selected photo preview" hidden />
       </section>
 
+      <!-- ── Crop Step (shown between photo and OCR) ────────── -->
+      <section id="crop-section" class="card crop-section" style="display:none" aria-label="Crop Image">
+        <div class="step-heading">
+          <span class="step-num" aria-hidden="true">✂</span>
+          <div class="step-heading-text">
+            <h2 data-i18n="crop_title">Crop Your Image</h2>
+            <p data-i18n="crop_copy">Select only the part you want to read. Rectangle drag or tap points for polygon.</p>
+          </div>
+        </div>
+        <div id="crop-container" class="crop-container"></div>
+      </section>
+
       <!-- ── Step 2: OCR & Vocabulary Extraction ────────────── -->
       <section class="card" aria-labelledby="ocr-heading">
         <div class="step-heading">
@@ -262,9 +274,32 @@
           <span id="words-count-badge" class="badge-count">0</span>
         </div>
 
+        <!-- Selection Toolbar -->
+        <div id="word-selection-toolbar" class="word-selection-toolbar" style="display:none">
+          <button id="select-all-btn" class="sel-btn" type="button">☑ Select All</button>
+          <button id="select-none-btn" class="sel-btn" type="button">☐ Deselect All</button>
+          <span id="selected-count-label" class="sel-count-label"></span>
+        </div>
+
         <div id="words-list-container" class="words-scroll-list">
           <p class="empty-list-notice" data-i18n="empty_list_notice">No words yet. Take a photo of a textbook page to begin.</p>
         </div>
+
+        <!-- Add Custom Word Panel -->
+        <details id="add-word-panel" class="add-word-panel" style="display:none">
+          <summary class="add-word-summary">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add a Word Manually
+          </summary>
+          <div class="add-word-body">
+            <div class="add-word-row">
+              <input id="add-word-english" class="add-word-input" type="text" placeholder="English word" autocomplete="off" autocorrect="off" spellcheck="false" />
+              <input id="add-word-arabic" class="add-word-input" type="text" placeholder="Arabic meaning (optional)" dir="auto" />
+            </div>
+            <button id="add-word-btn" class="btn btn-primary add-word-submit" type="button">Add to List</button>
+            <p id="add-word-status" class="add-word-status" aria-live="polite"></p>
+          </div>
+        </details>
       </section>
 
       <!-- ── Collapsible Settings & Diagnostics Drawer ─────── -->

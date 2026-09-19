@@ -7,6 +7,8 @@
  * - Smart morphology & lemmatization (plurals, tenses, suffixes, irregular verbs)
  */
 
+import fullDictionary from "./data/dictionary-full.json";
+
 function readCustomMeanings(): Record<string, string> {
   if (typeof window === "undefined" || !("localStorage" in window)) return {};
   try {
@@ -1782,7 +1784,7 @@ export function lookupWord(rawWord: string): DictionaryDefinition | null {
     // Best effort
   }
 
-  // 2. Try candidate roots in order
+  // 2. Try candidate roots in curated dictionary first
   const candidates = generateCandidateRoots(clean);
 
   for (const cand of candidates) {
@@ -1791,10 +1793,18 @@ export function lookupWord(rawWord: string): DictionaryDefinition | null {
     }
   }
 
+  // 3. Fallback to automated 87k+ dictionary
+  const autoDb = fullDictionary as Record<string, RawDictionaryEntry>;
+  for (const cand of candidates) {
+    if (cand in autoDb) {
+      return parseRawEntry(autoDb[cand]!);
+    }
+  }
+
   return null;
 }
 
 /** Total entries loaded in the offline dictionary. */
 export function getDictionaryCount(): number {
-  return Object.keys(DICTIONARY_DATABASE).length;
+  return Object.keys(DICTIONARY_DATABASE).length + Object.keys(fullDictionary).length;
 }

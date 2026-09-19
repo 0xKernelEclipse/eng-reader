@@ -41,6 +41,8 @@ import {
 } from "./speech.js";
 import { runOcr } from "./ocr.js";
 import { extractVocabulary } from "./vocabulary.js";
+import { CropController } from "./crop.js";
+import { lookupWord } from "./dictionary.js";
 import {
   t,
   req,
@@ -144,6 +146,38 @@ const refreshBtn = req<HTMLButtonElement>("refresh-diagnostics");
 // Image Loading & Handling
 // ---------------------------------------------------------------------------
 
+let currentImageDataUrl: string | undefined;
+let cropController: CropController | null = null;
+
+const cropSection = document.getElementById("crop-section") as HTMLElement;
+const cropContainer = document.getElementById("crop-container") as HTMLElement;
+
+function showCropStep(dataUrl: string): void {
+  currentImageDataUrl = dataUrl;
+  cropSection.style.display = "";
+  cropSection.scrollIntoView({ behavior: "smooth" });
+
+  cropController?.destroy();
+  cropController = new CropController(
+    cropContainer,
+    dataUrl,
+    (croppedDataUrl) => {
+      // User confirmed crop → run OCR on cropped image
+      cropSection.style.display = "none";
+      currentImageDataUrl = croppedDataUrl;
+      preview.src = croppedDataUrl;
+      preview.hidden = false;
+      void runOcrOnDataUrl(croppedDataUrl);
+    },
+    () => {
+      // User skipped crop → run OCR on original image
+      cropSection.style.display = "none";
+      void runOcrOnDataUrl(dataUrl);
+    },
+  );
+  cropController.show();
+}
+
 function setImageFile(file: File, displayName: string): void {
   selectedImage = file;
 
@@ -155,6 +189,15 @@ function setImageFile(file: File, displayName: string): void {
   ocrButton.disabled = false;
   showStatus(imageStatus, tr("image_selected", { name: displayName }), "success");
   showStatus(ocrStatus, tr("ocr_idle"));
+
+  // Read file as dataURL and launch the crop step
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (typeof reader.result === "string") {
+      showCropStep(reader.result);
+    }
+  };
+  reader.readAsDataURL(file);
 }
 
 function handleFileInput(input: HTMLInputElement): void {
@@ -183,12 +226,31 @@ async function loadSampleTextbookImage(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// OCR & Vocabulary Pipeline
+// Word List UI Helpers (checkboxes, toolbar, add-word)
 // ---------------------------------------------------------------------------
 
-async function handleOcr(): Promise<void> {
-  if (!selectedImage) return;
+function updateSelectionToolbar(): void {
+  const toolbar = document.getElementById("word-selection-toolbar");
+  const label = document.getElementById("selected-count-label");
+  const addPanel = document.getElementById("add-word-panel");
+  if (!toolbar || !label) return;
+  const total = wordsList.length;
+  const selected = wordsList.filter((w) => w.selected).length;
+  toolbar.style.display = total > 0 ? "" : "none";
+  if (addPanel) addPanel.style.display = total > 0 ? "" : "none";
+  label.textContent = `${selected} / ${total} selected`;
+}
 
+function loadSelectedIntoPlayer(): void {
+  const selected = wordsList.filter((w) => w.selected);
+  player.load(selected.length > 0 ? selected : wordsList);
+}
+
+// ---------------------------------------------------------------------------
+// OCR Pipeline
+// ---------------------------------------------------------------------------
+
+async function runOcrOnDataUrl(dataUrl: string): Promise<void> {
   player.stop();
   ocrButton.disabled = true;
   ocrProgress.hidden = false;
@@ -198,13 +260,15 @@ async function handleOcr(): Promise<void> {
   try {
     showStatus(ocrStatus, tr("preparing_image"));
 
-    const result = await runOcr(selectedImage, (msg) => {
+    // Convert dataUrl to Blob for Tesseract
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], "image.jpg", { type: blob.type || "image/jpeg" });
+
+    const result = await runOcr(file, (msg) => {
       const pct = Math.round(msg.progress * 100);
       progressBar.style.width = `${pct}%`;
-      showStatus(
-        ocrStatus,
-        tr("ocr_progress", { status: msg.status, percent: pct }),
-      );
+      showStatus(ocrStatus, tr("ocr_progress", { status: msg.status, percent: pct }));
     });
 
     progressBar.style.width = "100%";
@@ -215,7 +279,6 @@ async function handleOcr(): Promise<void> {
       return;
     }
 
-    // Extract vocabulary and match with offline Arabic dictionary
     wordsList = extractVocabulary(result.text, vocabMode, tr("no_meaning"));
 
     if (wordsList.length === 0) {
@@ -226,17 +289,19 @@ async function handleOcr(): Promise<void> {
     saveCachedWords(wordsList);
     showStatus(ocrStatus, tr("words_found", { count: wordsList.length }), "success");
 
-    // Load into speech player and render word list
-    player.load(wordsList);
+    loadSelectedIntoPlayer();
     renderWordList(wordsList, 0, locale, (idx) => {
-      player.jumpToWord(idx);
-    });
+      // Jump to this word in the selected subset
+      const item = wordsList[idx];
+      if (!item) return;
+      const selectedList = wordsList.filter((w) => w.selected);
+      const selIdx = selectedList.findIndex((w) => w.id === item.id);
+      if (selIdx >= 0) player.jumpToWord(selIdx);
+    }, onWordCheckboxToggle);
+    updateSelectionToolbar();
 
-    // Auto scroll down to the player card
     const playerCard = document.getElementById("player-card");
-    if (playerCard) {
-      playerCard.scrollIntoView({ behavior: "smooth" });
-    }
+    if (playerCard) playerCard.scrollIntoView({ behavior: "smooth" });
   } catch (err) {
     showStatus(ocrStatus, tr("ocr_failed"), "error");
   } finally {
@@ -246,6 +311,94 @@ async function handleOcr(): Promise<void> {
       progressBar.style.width = "0%";
     }, 800);
   }
+}
+
+async function handleOcr(): Promise<void> {
+  if (currentImageDataUrl) {
+    await runOcrOnDataUrl(currentImageDataUrl);
+  } else if (selectedImage) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        void runOcrOnDataUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(selectedImage);
+  }
+}
+
+function onWordCheckboxToggle(idx: number, checked: boolean): void {
+  if (wordsList[idx]) wordsList[idx]!.selected = checked;
+  updateSelectionToolbar();
+  loadSelectedIntoPlayer();
+  saveCachedWords(wordsList);
+}
+
+// ---------------------------------------------------------------------------
+// Add Custom Word to Queue
+// ---------------------------------------------------------------------------
+
+async function handleAddWord(): Promise<void> {
+  const engInput = document.getElementById("add-word-english") as HTMLInputElement;
+  const arInput = document.getElementById("add-word-arabic") as HTMLInputElement;
+  const statusEl = document.getElementById("add-word-status") as HTMLParagraphElement;
+
+  const eng = engInput.value.trim();
+  if (!eng) {
+    statusEl.textContent = "Please type an English word first.";
+    return;
+  }
+
+  const cleanWord = eng.toLowerCase().replace(/[^a-z'-]/g, "");
+  const displayWord = eng.charAt(0).toUpperCase() + eng.slice(1);
+
+  // Deduplicate
+  if (wordsList.some((w) => w.cleanWord === cleanWord)) {
+    statusEl.textContent = `"${displayWord}" is already in the list.`;
+    engInput.value = "";
+    arInput.value = "";
+    return;
+  }
+
+  // Meaning: user input → dictionary → "no meaning"
+  let arabicMeaning = arInput.value.trim();
+  if (!arabicMeaning) {
+    const found = lookupWord(cleanWord);
+    arabicMeaning = found ? found.primary : tr("no_meaning");
+  }
+
+  // If user provided Arabic, save it as custom meaning
+  if (arInput.value.trim()) {
+    saveCustomMeaning(cleanWord, arInput.value.trim());
+  }
+
+  const newItem: VocabularyItem = {
+    id: `custom-${Date.now()}`,
+    word: displayWord,
+    cleanWord,
+    arabicMeaning,
+    allMeanings: [arabicMeaning],
+    foundInDictionary: Boolean(arInput.value.trim()),
+    selected: true,
+    isCustom: true,
+  };
+
+  wordsList.push(newItem);
+  saveCachedWords(wordsList);
+  loadSelectedIntoPlayer();
+  renderWordList(wordsList, player.getState().currentIndex, locale, (idx) => {
+    const item = wordsList[idx];
+    if (!item) return;
+    const selectedList = wordsList.filter((w) => w.selected);
+    const selIdx = selectedList.findIndex((w) => w.id === item.id);
+    if (selIdx >= 0) player.jumpToWord(selIdx);
+  }, onWordCheckboxToggle);
+  updateSelectionToolbar();
+
+  statusEl.textContent = `✓ Added "${displayWord}" to the list.`;
+  engInput.value = "";
+  arInput.value = "";
+  setTimeout(() => { statusEl.textContent = ""; }, 3000);
 }
 
 // ---------------------------------------------------------------------------
@@ -377,8 +530,21 @@ function updateVocabMode(newMode: VocabularyMode): void {
   // If raw OCR text exists, re-extract vocabulary with new mode
   if (ocrResult.value.trim()) {
     wordsList = extractVocabulary(ocrResult.value, vocabMode, tr("no_meaning"));
-    player.load(wordsList);
-    renderWordList(wordsList, 0, locale, (idx) => player.jumpToWord(idx));
+    loadSelectedIntoPlayer();
+    renderWordList(
+      wordsList,
+      0,
+      locale,
+      (idx) => {
+        const item = wordsList[idx];
+        if (!item) return;
+        const selectedList = wordsList.filter((w) => w.selected);
+        const selIdx = selectedList.findIndex((w) => w.id === item.id);
+        if (selIdx >= 0) player.jumpToWord(selIdx);
+      },
+      onWordCheckboxToggle,
+    );
+    updateSelectionToolbar();
   }
 }
 
@@ -416,9 +582,20 @@ function renderAll(): void {
   renderLocale(locale);
   renderVoiceStatus(locale, voices);
   renderPlayerUI(player.getState(), wordsList[player.getState().currentIndex], locale);
-  renderWordList(wordsList, player.getState().currentIndex, locale, (idx) => {
-    player.jumpToWord(idx);
-  });
+  renderWordList(
+    wordsList,
+    player.getState().currentIndex,
+    locale,
+    (idx) => {
+      const item = wordsList[idx];
+      if (!item) return;
+      const selectedList = wordsList.filter((w) => w.selected);
+      const selIdx = selectedList.findIndex((w) => w.id === item.id);
+      if (selIdx >= 0) player.jumpToWord(selIdx);
+    },
+    onWordCheckboxToggle,
+  );
+  updateSelectionToolbar();
 }
 
 // ---------------------------------------------------------------------------
@@ -445,6 +622,38 @@ photoInput.addEventListener("change", () => handleFileInput(photoInput));
 sampleButton.addEventListener("click", () => void loadSampleTextbookImage());
 ocrButton.addEventListener("click", () => void handleOcr());
 editMeaningBtn.addEventListener("click", handleEditMeaning);
+
+// Word selection toolbar
+document.getElementById("select-all-btn")?.addEventListener("click", () => {
+  wordsList.forEach((w) => (w.selected = true));
+  updateSelectionToolbar();
+  loadSelectedIntoPlayer();
+  renderWordList(wordsList, player.getState().currentIndex, locale, (idx) => {
+    const item = wordsList[idx];
+    if (!item) return;
+    const selectedList = wordsList.filter((w) => w.selected);
+    const selIdx = selectedList.findIndex((w) => w.id === item.id);
+    if (selIdx >= 0) player.jumpToWord(selIdx);
+  }, onWordCheckboxToggle);
+  saveCachedWords(wordsList);
+});
+
+document.getElementById("select-none-btn")?.addEventListener("click", () => {
+  wordsList.forEach((w) => (w.selected = false));
+  updateSelectionToolbar();
+  loadSelectedIntoPlayer();
+  renderWordList(wordsList, player.getState().currentIndex, locale, (idx) => {
+    const item = wordsList[idx];
+    if (!item) return;
+    const selectedList = wordsList.filter((w) => w.selected);
+    const selIdx = selectedList.findIndex((w) => w.id === item.id);
+    if (selIdx >= 0) player.jumpToWord(selIdx);
+  }, onWordCheckboxToggle);
+  saveCachedWords(wordsList);
+});
+
+// Add word button
+document.getElementById("add-word-btn")?.addEventListener("click", () => void handleAddWord());
 
 // Player buttons
 playerPlayPause.addEventListener("click", () => {

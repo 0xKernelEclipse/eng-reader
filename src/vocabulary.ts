@@ -127,6 +127,7 @@ export function extractVocabulary(
       arabicMeaning: dictResult ? dictResult.primary : fallbackMeaning,
       allMeanings: dictResult ? dictResult.meanings : [],
       foundInDictionary: Boolean(dictResult),
+      selected: true,
     });
   }
 

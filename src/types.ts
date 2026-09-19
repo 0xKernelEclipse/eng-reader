@@ -33,6 +33,8 @@ export interface VocabularyItem {
   arabicMeaning: string;    // Primary Arabic translation (e.g. "البيئة")
   allMeanings: string[];    // Additional meanings if available
   foundInDictionary: boolean;
+  selected: boolean;        // Checkbox — whether this word is queued for reading
+  isCustom?: boolean;       // True if manually added by user
 }
 
 /** Playback status for the speech queue. */
